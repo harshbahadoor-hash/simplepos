@@ -9,8 +9,8 @@ import { PosButton as Button } from '../ui/PosButton';
 import { Calculator } from '../ui/Calculator';
 import { Payment } from '../ui/Payment';
 import { Dialog } from '../ui/Dialog';
-import { GheePresets } from '../ui/GheePresets';
-import type { Preset } from '../domain/presets';
+import { PresetPicker } from '../ui/PresetPicker';
+import type { Preset, PresetMenu } from '../domain/presets';
 import { applyUpdate, canUpdate, updateReady } from './updates';
 
 type SaleLine = Line & { id: string };
@@ -32,6 +32,7 @@ export default function Counter() {
   const [editing, setEditing] = useState<string | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
   const [dialog, setDialog] = useState<'clear' | 'printer' | 'new-sale' | 'presets' | null>(null);
+  const [presetMenu, setPresetMenu] = useState<PresetMenu>('ghee');
   const closeDialog = useCallback(() => setDialog(null), []);
   const [sounds, setSounds] = useState(sound.isEnabled());
   const [connected, setConnected] = useState(false);
@@ -90,10 +91,10 @@ export default function Counter() {
     if (phase.current !== 'sale' || consumedEntry.current) return;
     try { commitLine(entryLine(entry)); } catch (error) { fail(error); }
   }
-  function openPresets() {
+  function openPresets(menu: PresetMenu) {
     if (phase.current !== 'sale' || editing !== null) return;
     if (entry.value) { fail(new Error('Add or clear the current price before choosing a preset.')); focus.current?.focus({ preventScroll: true }); return; }
-    presetCommitted.current = false; setMessage(''); setDialog('presets');
+    presetCommitted.current = false; setPresetMenu(menu); setMessage(''); setDialog('presets');
   }
   function choosePreset(preset: Preset, brand: string) {
     if (phase.current !== 'sale' || editing !== null || presetCommitted.current || dialog !== 'presets') return;
@@ -222,7 +223,7 @@ export default function Counter() {
       </section>
     </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed) newSale(); else setDialog('new-sale'); }} />}
     <div className={`message notice ${message ? 'has-message' : ''}`} role="status" aria-label="Counter message" aria-live="polite">{message}</div>
-    {dialog === 'presets' && <GheePresets quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
+    {dialog === 'presets' && <PresetPicker key={presetMenu} menu={presetMenu} quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
     {dialog === 'clear' && <Dialog title="Clear current sale?" close={closeDialog}><p>All current items will be removed.</p><Button onClick={closeDialog}>Cancel</Button><Button tone="delete" onClick={() => { mutate([], 'cleared sale'); resetEntry(); closeDialog(); setMessage('Sale cleared. Undo is available.'); }}>Clear</Button></Dialog>}
     {dialog === 'new-sale' && <Dialog title="Start a new sale?" close={closeDialog}><p>This receipt has not been confirmed sent. Starting a new sale discards it and hides the change.</p><Button onClick={closeDialog}>Keep receipt</Button><Button tone="positive" onClick={newSale}>Start new sale</Button></Dialog>}
     {dialog === 'printer' && <Dialog title="Printer settings" close={closeDialog}><Button onClick={closeDialog}>Done</Button><p>Selected: {printerName || 'None'} · {connected ? 'Connected' : 'Disconnected'}</p>

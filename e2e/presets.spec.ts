@@ -30,7 +30,7 @@ test('Ghee picker adds generic priced lines, supports quantity and Undo', async 
   await picker.getByRole('button', { name: 'RKG ghee', exact: true }).click();
   await picker.getByRole('button', { name: 'Back to brands', exact: true }).click();
   await picker.getByRole('button', { name: 'Stanwood ghee', exact: true }).click();
-  await picker.getByRole('button', { name: 'Rs 90.00', exact: true }).click();
+  await picker.getByRole('button', { name: '200 ml · Rs 90.00', exact: true }).click();
   await expect(page.getByTestId('total')).toHaveText('Rs 90.00');
 });
 

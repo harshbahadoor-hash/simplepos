@@ -24,3 +24,6 @@
 .preset-grid.preset-sizes{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:760px){.preset-grid.preset-sizes{grid-template-columns:1fr}}
 /* Fallback and loaded number fonts must reserve the same control height. */
 .calculator-shortcuts>.double-zero{line-height:1.25;min-height:52px}.display output{line-height:1.25}@media(min-width:900px) and (orientation:landscape){.display output{line-height:1.15}}
+/* Keep all four shortcuts on one row without reducing the numeric keypad. */
+.calculator>.calculator-shortcuts{display:grid;grid-template-columns:minmax(64px,.65fr) repeat(2,minmax(64px,1fr)) minmax(92px,1.2fr)}.calculator>.calculator-shortcuts>button{min-width:0;padding:8px;min-height:52px}.calculator-shortcuts>.oil-trigger{background:#edf3ff;border-color:#bdcce0;color:#234a70}.calculator-shortcuts>.cancel-edit{grid-column:span 2}.preset-grid.preset-types{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:760px){.calculator>.calculator-shortcuts{gap:8px}.preset-grid.preset-types{grid-template-columns:1fr}}
+@media(max-width:380px){header{flex-wrap:wrap}.calculator>.calculator-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
