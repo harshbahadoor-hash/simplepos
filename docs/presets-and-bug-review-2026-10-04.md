@@ -38,4 +38,15 @@ User scope: add 00, Ghee → brand → size/price shortcuts using the supplied p
 | Tablet layout | 00/Ghee/Clear are 52 px high with 20.8 px scaled body text; keypad/Add/Pay visible within 1280 × 722 | Browser simulation uses the actual measured tablet dimensions and text scaling |
 | Native cancellation | Three deterministic lifecycle scenarios pass | Stubs exercise actual plugin concurrency, not Android radio/paper behavior |
 
-Hardware rollout and production results are recorded below after execution. Physical receipt appearance, acoustic latency, paper-out recovery and long-shift comfort require operator observation; a successful Bluetooth write alone cannot establish them.
+## Hardware and production acceptance
+
+- Code commit `4903722f8da30a89f2e632746b293131c39819ad` passed [GitHub CI](https://github.com/harshbahadoor-hash/simplepos/actions/runs/37197180126): 16 unit tests, 106 browser checks with two intentional viewport-only skips, and three native lifecycle checks. CI uses the full tracked browser suite, including the two tests removed in the user's local working copy.
+- The static release is live at the production URL, served from `/srv/simplepos/releases/20261004-ghee-presets`. A fresh production browser verified 00 entry and RKG 5 L at Rs 2,650.
+- The rebuilt Android app was installed on the connected Samsung SM-X230. Actual WebView measurements were 1280 × 722 CSS pixels with a 20.8 px body font. Screenshots confirm that the keypad, large right-hand Add button, Times button above it, 00/Ghee/Clear controls, total and Pay fit together on the tablet.
+- Connected BT-80UBW, selected 80 mm paper, and sent a test slip through the real native Bluetooth bridge.
+- Actual tablet sale: `5 → 00 → Add` = Rs 500; Gopal 150 ml = Rs 130; quantity 1.5 × Vita 250 g at Rs 65 = Rs 97.50. Subtotal Rs 727.50, rounded-up total Rs 728, cash Rs 1,000, change Rs 272. Change remained visible after printing.
+- Captured the actual outbound 563-byte receipt while forwarding it unchanged to the native bridge. It contains three numbered quantity/price lines, the subtotal, Rs 0.50 round-up, total, cash and change. It contains no Ghee, brand or size names. Both print payloads end in ESC/POS cut bytes `29, 86, 0`.
+- The operator confirmed: **“Yes, printed correctly and cut”** for the new Rs 728 receipt, including clear numbered lines without brand names and automatic cutting.
+- After this test sale, New Sale restored quantity 1, zero items and Rs 0. The tablet remains connected to the printer and ready for the next customer.
+
+Physical receipt appearance and automatic cutting are confirmed on the connected printer. Acoustic latency, paper-out recovery and long-shift comfort have not been measured in this acceptance run.
