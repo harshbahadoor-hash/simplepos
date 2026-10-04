@@ -29,6 +29,8 @@ export default function App() {
   let received = 0;
   try { received = cash ? parseMoney(cash) : 0; } catch { /* Invalid input is shown on completion. */ }
   const payment = cashPayment(amount, received);
+  let pendingAmount: number | null = null;
+  try { pendingAmount = lineTotal(entryLine(entry)); } catch { /* Add stays disabled until entry is valid. */ }
   useEffect(() => { saveDraft(lines, stage === 'complete'); }, [lines, stage]);
   useEffect(() => {
     if (!settings && !clear) return;
@@ -117,9 +119,16 @@ export default function App() {
           <div className="section-label">{editing === null ? 'ENTER A PRICE' : `EDIT ITEM ${editing + 1}`}<span>Quantity {entry.quantity}</span></div>
           <div className="display"><small>{entry.multiplied ? `${entry.quantity} × unit price` : 'Unit price · Rs'}</small><output aria-live="polite">{entry.value || '0'}</output></div>
           {editing !== null && <div className="entry-actions"><label>Quantity<input aria-label="Quantity" inputMode="numeric" value={entry.quantity || ''} onChange={event => { sound.playTap(); setEntry({ ...entry, quantity: Number(event.target.value) }); }} /></label><label>Unit price<input aria-label="Unit price" inputMode="decimal" value={entry.value} onChange={event => { sound.playTap(); setEntry({ ...entry, value: event.target.value }); }} /></label></div>}
-          <div className="keypad">{['7','8','9','4','5','6','1','2','3','0','.','⌫'].map(value => <Button key={value} onClick={() => key(value === '⌫' ? 'Backspace' : value)}>{value}</Button>)}</div>
+          <div className="keypad-zone">
+            <div className="keypad">{['7','8','9','4','5','6','1','2','3','0','.','⌫'].map(value => <Button key={value} onClick={() => key(value === '⌫' ? 'Backspace' : value)}>{value}</Button>)}</div>
+            <Button className="primary add" aria-label={editing === null ? '+ Add Item' : 'Save Item'} disabled={pendingAmount === null} tone="positive" onClick={add}>
+              <span className="add-icon" aria-hidden="true">{editing === null ? '+' : '✓'}</span>
+              <span className="add-label">{editing === null ? 'Add Item' : 'Save Item'}</span>
+              <span className="add-amount">{pendingAmount === null ? (entry.value ? 'Check input' : 'Enter a price') : money(pendingAmount)}</span>
+              <span className="add-hint" aria-hidden="true">Enter ↵</span>
+            </Button>
+          </div>
           <div className="entry-actions"><Button onClick={() => key('*')}>× Quantity</Button><Button onClick={() => key('Escape')}>Clear input</Button></div>
-          <Button className="primary add" tone="positive" onClick={add}>{editing === null ? '+ Add Item' : 'Save Item'}</Button>
         </section>
         <section className="basket" aria-label="Current sale"><div className="section-label">CURRENT SALE<span>{lines.length} items</span></div>
           <div className="items">{lines.length === 0 ? <div className="empty"><span>＋</span><h2>Ready for your next customer</h2><p>Enter a price, then add an item.</p><small>Try 10 Enter · 2 × 20 Enter</small></div> : lines.map((line, index) => <article key={index}><div><strong>Item {index + 1}</strong><small>{line.quantity} × {money(line.price)}</small></div><strong>{money(lineTotal(line))}</strong><Button aria-label={`Edit Item ${index + 1}`} onClick={() => { setEditing(index); setEntry({ quantity: line.quantity, value: (line.price / 100).toFixed(2), multiplied: true }); }}>Edit</Button><Button tone="delete" aria-label={`Delete Item ${index + 1}`} onClick={() => { setUndo(lines); setLines(lines.filter((_, i) => i !== index)); setEditing(null); setEntry(emptyEntry()); }}>✕</Button></article>)}</div>
