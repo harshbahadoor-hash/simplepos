@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bahadoor Simple POS</string>
+    <string name="title_activity_main">Bahadoor Simple POS</string>
+    <string name="package_name">com.bahadoor.simplepos</string>
+    <string name="custom_url_scheme">com.bahadoor.simplepos</string>
+</resources>

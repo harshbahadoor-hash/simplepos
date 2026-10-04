@@ -1,0 +1,21 @@
+node_modules/
+dist/
+*.tsbuildinfo
+test-results/
+playwright-report/
+.vite/
+artifacts/
+
+# Android build output and machine-specific files
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/build/
+android/app/src/main/assets/public/
+android-plugins/shop-print/android/build/
+*.jks
+*.keystore
+keystore.properties
+*.apk
