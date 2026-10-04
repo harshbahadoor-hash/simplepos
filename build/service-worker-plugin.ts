@@ -21,7 +21,7 @@ export function serviceWorkerPlugin(): Plugin {
         hash.update(chunk.type === "chunk" ? chunk.code : typeof chunk.source === "string" ? chunk.source : Buffer.from(chunk.source));
       }
       const version = hash.digest("hex").slice(0, 16);
-      const precache = ["/", ...files.filter((file) => file !== "index.html").map((file) => `/${file}`)];
+      const precache = ["/", "/simplepos-icon.svg", ...files.filter((file) => file !== "index.html").map((file) => `/${file}`)];
       this.emitFile({ type: "asset", fileName: "sw.js", source: workerSource(version, precache) });
     },
   };
@@ -32,7 +32,13 @@ function workerSource(version: string, precache: string[]): string {
 const PRECACHE = ${JSON.stringify(precache)};
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => {
+    if (!self.registration.active) return self.skipWaiting();
+  }));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "ACTIVATE") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -52,7 +58,9 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(caches.match("/", { cacheName: CACHE }).then((cached) => cached || fetch(request)));
     return;
   }
-  event.respondWith(caches.match(request, { cacheName: CACHE }).then((cached) => cached || fetch(request)));
+  // All cached assets belong to this same-origin build. Ignore Vary: Origin
+  // because module requests and install-time requests send different headers.
+  event.respondWith(caches.match(request, { cacheName: CACHE, ignoreVary: true }).then((cached) => cached || fetch(request)));
 });
 `;
 }

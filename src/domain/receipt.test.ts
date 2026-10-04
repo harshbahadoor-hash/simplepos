@@ -9,4 +9,14 @@ it('prints totals and change with ESC/POS initialisation and paper feed', () => 
   expect(text).toContain('Change');
   expect(text).toContain('19.00');
   expect(text).toContain('04/10/2026');
+  expect(Array.from(bytes.slice(-3))).toEqual([29, 86, 0]);
+});
+it('prints fractional quantity and the same rounded line total as the screen', () => {
+  const text = new TextDecoder().decode(receiptBytes([{ quantity: 1.25, price: 1550 }], 'cash', 2000, 80, new Date()));
+  expect(text).toContain('1.25 x 15.50');
+  expect(text).toContain('19.38');
+  expect(text).toContain('Round up');
+  expect(text).toContain('0.62');
+  expect(text).toMatch(/TOTAL\s+Rs 20.00/);
+  expect(text).toMatch(/Change\s+Rs 0.00/);
 });

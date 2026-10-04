@@ -8,11 +8,17 @@ Use Node 24 or newer. Run `npm ci` then `npm run dev`. `npm run build` creates s
 
 Enter prices and press Enter to add. `2 * 20 Enter` adds two items at Rs 20 each. Escape clears entry. Edit and delete controls update the total immediately. Cash payment shows change until New Sale. Printer failures retain the completed sale for retry. Sound and printer preferences are stored locally; the unfinished basket is recovered within the same browser tab through sessionStorage. Completion or New Sale clears that draft. Completed sales remain in memory only.
 
+The large × button sits above the full-height Add button, to the right of the digit keypad. Quantity remains visible beside the price. Pay preserves unfinished input; additions, edits, deletions and a cleared basket have one-step Undo. Canceled or dragged touches and held-key repeats do not activate controls. Cash has its own touch keypad and shows Still Due until sufficient cash is entered. Starting a new sale asks before discarding an unsent receipt. Simple POS has a distinct amber calculator icon in the header, browser and Android launcher.
+
+Quantity supports two decimal places: `1.25 × 15.50` gives a line amount of Rs 19.38. Quantities use integer hundredths for multiplication and each line rounds once to the nearest cent (half a cent rounds upward). The final sale total rounds the sum upward to the next whole rupee: Rs 19.38 becomes Rs 20, with Rs 0.62 shown as a rounding adjustment. Cash and change use that final total. Receipts and Test Print feed paper then send `GS V 0` to request automatic cutting on printers with a cutter, following [Epson's ESC/POS cut command](https://download4.epson.biz/sec_pubs/pos/reference_en/escpos/gs_cv.html).
+
 ## Printing
 
 The Android shell reuses the Bahadoor ERP's ShopPrint Capacitor bridge for Bluetooth Classic SPP printers. Pair a printer in Android settings, then select it in the app. Browser printing supports BLE serial printers advertising service FFE0 and write characteristic FFE1; Bluetooth Classic printers require the Android app. Set 58 mm or 80 mm paper in settings and run Test Print.
 
 Bluetooth confirms bytes sent, not that paper physically printed. Check the printer after an error before retrying to avoid duplicate receipts. Actual tablet sound latency and physical paper output require hardware acceptance testing.
+
+Reconnect the selected printer from Settings. Native connection/write deadlines close the underlying socket, and canceled permission requests cannot resume an abandoned connection. Receipt retries use the original sale snapshot and timestamp.
 
 ## Android
 
@@ -23,3 +29,5 @@ Bluetooth confirms bytes sent, not that paper physically printed. Check the prin
 Production URL: https://new.a7k2mq9xb4rt8vl1nc6pz3wy5df0hj7sr2km9qx4un8ep1tv6gw3ba5cd0.com
 
 Serve `dist/` as static assets. Caddy configuration is in `deploy/simplepos.caddy`. Keep HTML and `sw.js` uncached and immutable hashed assets cached. Versioned directories under `/srv/simplepos/releases` and the `/srv/simplepos/current` symlink allow rollback without modifying ERP services.
+
+After the first successful load, the frontend, fonts and logo are available offline. New service workers wait; Apply Update is offered only with an empty sale and calculator. An update never automatically reloads a customer's active sale or payment.

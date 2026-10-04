@@ -13,6 +13,7 @@ test('keyboard sale calculates 140 total and keeps 60 change after completion', 
   await expect(page.getByText('Sale complete', { exact: true })).toBeVisible();
   await expect(page.getByTestId('change')).toHaveText('Rs 60.00');
   await page.getByRole('button', { name: 'New Sale' }).click();
+  await page.getByRole('button', { name: 'Start new sale', exact: true }).click();
   await expect(page.getByTestId('total')).toHaveText('Rs 0.00');
 });
 test('audio failure cannot block rapid entry, undo, clear confirmation or short-cash validation', async ({ page }) => {
