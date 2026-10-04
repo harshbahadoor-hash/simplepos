@@ -26,4 +26,14 @@
 - Independent review found shortcut overflow on a 320 px phone. A real browser regression reproduced the Oil button extending to 343 px. Two shortcut columns fix it; the same regression also found the pre-existing printer header extending to 321 px at the larger text scale. Allowing the narrow header to wrap removes that overflow without hiding content.
 - The user's pre-existing two-test deletion in `e2e/sale.spec.ts` remains unstaged and untouched. CI uses the full tracked suite.
 
-Production and connected-tablet results are added after rollout. The native printer bridge is unchanged; no Android reinstall is required for this frontend update.
+## Production and connected-tablet acceptance
+
+- Code commit `3bb42b85b668f298a6b3edde948ad2fef77679ad` passed [GitHub CI](https://github.com/harshbahadoor-hash/simplepos/actions/runs/37203351477): 16 unit tests, 139 browser checks, two intentional viewport-only skips and all three native lifecycle checks. The higher CI browser count includes the full tracked sale tests.
+- Deployed the static release to `/srv/simplepos/releases/20261004-oil-presets`; the current symlink points there. Fresh HTTPS browser returned 200 and selected Chameli 500 ml at Rs 275 successfully.
+- Confirmed the connected Samsung SM-X230 was idle (zero items, Rs 0, empty price, quantity 1) before applying its service-worker update. The native printer bridge is unchanged; no Android reinstall was required.
+- Actual WebView remains 1280 × 722 CSS pixels with 20.8 px body text. Screenshots confirm all four shortcuts, Times/Add, total and Pay fit together, and oil size screens display the current type, brand and decimal quantity.
+- Connected BT-80UBW and printed on 80 mm paper. Seven actual tablet selections covered all four oil types and all three changed Ghee brands: 1.25 × Badye Mustard 100 ml/Rs 35; Coconut Tristar 1 L/Rs 260; Sesame RKG 200 ml/Rs 75; Chameli 100 ml/Rs 75; Gavardhan 200 ml/Rs 150; Stanwood 1 L/Rs 285; Trishul 100 ml/Rs 50.
+- Subtotal Rs 938.75, round-up Rs 0.25, total Rs 939, cash Rs 1,000 and change Rs 61. Change remained visible after printing.
+- Captured the actual 759-byte receipt while forwarding it unchanged through the native bridge. Verified all seven numbered quantity/price lines, correct subtotal/round-up/total/cash/change, absence of oil/brand/size names and trailing cut command `29, 86, 0`.
+- The operator confirmed **“Yes, printed correctly and cut”** for the new Rs 939 Oil/Ghee receipt, including numbered lines without product names and automatic cutting.
+- New Sale restored quantity 1, zero items and Rs 0. Printer remains connected and the tablet is ready for the next customer. Temporary print instrumentation and the task's debugging port forward were removed.
