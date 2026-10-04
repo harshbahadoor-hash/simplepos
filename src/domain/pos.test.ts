@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { parseMoney, lineTotal, total, cashPayment, quickCash, enter, emptyEntry, entryLine } from './pos';
 
 describe('calculator sale', () => {
+  it('enters double zero atomically without leading zeros or partial decimal input', () => {
+    expect(enter(enter(emptyEntry(), '5'), '00').value).toBe('500');
+    expect(enter(emptyEntry(), '00').value).toBe('0');
+    expect(enter({ quantity: 1, value: '12.', multiplied: false }, '00').value).toBe('12.00');
+    const partial = { quantity: 1, value: '12.3', multiplied: false };
+    expect(() => enter(partial, '00')).toThrow();
+    expect(partial.value).toBe('12.3');
+  });
   it('offers safe shortcuts near the supported amount limit and rejects excessive amounts', () => {
     expect(() => parseMoney('100000000')).toThrow();
     expect(quickCash(9999999999).every(value => Number.isSafeInteger(value) && value >= 9999999999)).toBe(true);

@@ -3,9 +3,9 @@ import { entryLine, lineTotal, money, type Entry } from '../domain/pos';
 import { sound } from '../sound/sound-manager';
 import { PosButton as Button } from './PosButton';
 
-export function Calculator({ entry, editing, focus, setEntry, keypress, add, cancel }: {
+export function Calculator({ entry, editing, focus, setEntry, keypress, add, cancel, presets }: {
   entry: Entry; editing: number | null; focus: RefObject<HTMLOutputElement | null>;
-  setEntry: (entry: Entry) => void; keypress: (key: string) => void; add: () => void; cancel: () => void;
+  setEntry: (entry: Entry) => void; keypress: (key: string) => void; add: () => void; cancel: () => void; presets: () => void;
 }) {
   let pending: number | null = null;
   try { pending = lineTotal(entryLine(entry)); } catch { /* Disabled until valid. */ }
@@ -23,6 +23,6 @@ export function Calculator({ entry, editing, focus, setEntry, keypress, add, can
         <span className="add-amount">{pending === null ? (entry.value ? 'Check input' : 'Enter a price') : money(pending)}</span><span className="add-hint" aria-hidden="true">Enter ↵</span>
       </Button>
     </div>
-    <div className="entry-actions"><Button onClick={() => keypress('Escape')}>Clear input</Button>{editing !== null && <Button onClick={cancel}>Cancel edit</Button>}</div>
+    <div className="entry-actions calculator-shortcuts"><Button className="double-zero" onClick={() => keypress('00')}>00</Button><Button className="preset-trigger" disabled={editing !== null} onClick={presets}>Ghee</Button><Button onClick={() => keypress('Escape')}>Clear input</Button>{editing !== null && <Button onClick={cancel}>Cancel edit</Button>}</div>
   </section>;
 }

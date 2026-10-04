@@ -19,6 +19,7 @@ export interface PrinterAdapter {
 class BluetoothPrinter implements PrinterAdapter {
   private connected = false;
   private device?: BluetoothDevice;
+  private disconnected?: () => void;
   private characteristic?: BluetoothRemoteGATTCharacteristic;
   private printing = false;
   isConnected() { return this.connected && (Capacitor.isNativePlatform() || this.device?.gatt?.connected === true); }
@@ -49,8 +50,14 @@ class BluetoothPrinter implements PrinterAdapter {
     }
     if (!navigator.bluetooth) throw new Error('This browser cannot print over Bluetooth. Use the Android app for Bluetooth Classic printers.');
     const serviceId = 0xffe0;
-    this.device = await navigator.bluetooth.requestDevice({ filters: [{ services: [serviceId] }], optionalServices: [serviceId] });
-    this.device.addEventListener('gattserverdisconnected', () => { this.connected = false; });
+    const selected = await navigator.bluetooth.requestDevice({ filters: [{ services: [serviceId] }], optionalServices: [serviceId] });
+    const previous = this.device;
+    if (previous && this.disconnected) previous.removeEventListener?.('gattserverdisconnected', this.disconnected);
+    this.device = undefined; this.characteristic = undefined;
+    previous?.gatt?.disconnect();
+    this.device = selected;
+    this.disconnected = () => { if (this.device === selected) { this.connected = false; this.characteristic = undefined; } };
+    selected.addEventListener('gattserverdisconnected', this.disconnected);
     return this.connectDevice();
   }
   private async connectDevice() {

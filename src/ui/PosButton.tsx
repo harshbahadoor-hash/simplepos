@@ -1,6 +1,25 @@
-import { useRef, type ButtonHTMLAttributes } from 'react';
+import { useRef, type ButtonHTMLAttributes, type MouseEvent } from 'react';
 import { sound, type Sound } from '../sound/sound-manager';
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Sound };
+let trailingTap: { x: number; y: number; until: number } | null = null;
+function clearTrailingTap() {
+  trailingTap = null;
+  document.removeEventListener('pointerdown', shieldTrailingTap, true);
+  document.removeEventListener('click', shieldTrailingTap, true);
+}
+function shieldTrailingTap(event: globalThis.MouseEvent) {
+  if (event.type === 'click' && event.detail === 0) { clearTrailingTap(); return; }
+  if (trailingTap && Date.now() < trailingTap.until && Math.hypot(event.clientX - trailingTap.x, event.clientY - trailingTap.y) <= 10) {
+    event.preventDefault(); event.stopPropagation();
+  } else clearTrailingTap();
+}
+/** Changing an overlay must not retarget a second tap to its replacement control. */
+export function preventTapThrough(event: MouseEvent<HTMLButtonElement>) {
+  if (event.detail === 0) return;
+  trailingTap = { x: event.clientX, y: event.clientY, until: Date.now() + 500 };
+  document.addEventListener('pointerdown', shieldTrailingTap, true);
+  document.addEventListener('click', shieldTrailingTap, true);
+}
 export function PosButton({ tone = 'tap', onClick, children, onPointerDown, onPointerMove, onPointerCancel, onPointerUp, onKeyDown, ...props }: Props) {
   const press = useRef<{ id: number; x: number; y: number; canceled: boolean } | null>(null);
   return <button {...props}

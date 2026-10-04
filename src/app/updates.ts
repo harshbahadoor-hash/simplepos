@@ -3,20 +3,28 @@ export function canUpdate(state: Boundary) {
   return state.stage === 'sale' && state.count === 0 && !state.entry && !state.multiplied && !state.editing && !state.busy && !state.dialog;
 }
 let waiting: ServiceWorker | null = null;
+let pendingReload = false;
 let reloadAllowed: (() => boolean) | null = null;
 const changed = () => window.dispatchEvent(new Event('simplepos-update'));
-export const updateReady = () => waiting !== null;
+export const updateReady = () => waiting !== null || pendingReload;
 export function applyUpdate(safe: () => boolean) {
-  if (!waiting || !safe()) return;
+  if (!safe()) return;
+  if (pendingReload) { window.location.reload(); return; }
+  if (!waiting) return;
   reloadAllowed = safe;
   waiting.postMessage({ type: 'ACTIVATE' });
 }
 export async function prepareUpdates() {
   if (!('serviceWorker' in navigator)) return;
+  let controlled = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    waiting = null; changed();
+    const updated = controlled || waiting !== null || reloadAllowed !== null;
+    controlled = true;
+    waiting = null;
+    pendingReload = updated;
     if (reloadAllowed?.()) window.location.reload();
     reloadAllowed = null;
+    changed();
   });
   try {
     const registration = await navigator.serviceWorker.register('/sw.js');

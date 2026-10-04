@@ -60,6 +60,9 @@ test('quantity field follows reselected items, Escape and keypad multiplication 
   await page.getByRole('button', { name: 'Edit Item 1' }).click();
   await page.getByLabel('Quantity', { exact: true }).fill('2.5');
   await page.getByRole('button', { name: 'Edit Item 1' }).click();
+  await expect(page.getByLabel('Quantity', { exact: true })).toHaveValue('2.5');
+  await page.getByRole('button', { name: 'Cancel edit', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit Item 1' }).click();
   await expect(page.getByLabel('Quantity', { exact: true })).toHaveValue('1.25');
   await page.locator('output').focus(); await page.keyboard.press('Escape');
   await expect(page.getByLabel('Quantity', { exact: true })).toHaveValue('1');

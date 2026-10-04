@@ -41,6 +41,7 @@ export function quickCash(amount: number): number[] {
   return values.sort((a, b) => a - b).slice(0, 3);
 }
 export function enter(entry: Entry, key: string): Entry {
+  if (key === '00') return enter(enter(entry, '0'), '0');
   if (key === 'Escape') return emptyEntry();
   if (key === 'Backspace') return { ...entry, value: entry.value.slice(0, -1) };
   if (key === '*' || key === 'x') {

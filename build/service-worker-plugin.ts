@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { Plugin } from "vite";
 
 const SKIP = /\.(map|txt)$/;
@@ -9,10 +11,12 @@ const SKIP = /\.(map|txt)$/;
  * build contents; old caches are removed when the new worker activates.
  */
 export function serviceWorkerPlugin(): Plugin {
+  let publicDir = '';
   return {
     name: "simplepos-service-worker",
     apply: "build",
-    generateBundle(_options, bundle) {
+    configResolved(config) { publicDir = config.publicDir; },
+    generateBundle: { order: 'post', handler(_options, bundle) {
       const files = Object.keys(bundle).filter((file) => !SKIP.test(file) && file !== "sw.js");
       const hash = createHash("sha256");
       for (const file of files.sort()) {
@@ -20,10 +24,12 @@ export function serviceWorkerPlugin(): Plugin {
         hash.update(file);
         hash.update(chunk.type === "chunk" ? chunk.code : typeof chunk.source === "string" ? chunk.source : Buffer.from(chunk.source));
       }
+      hash.update('simplepos-icon.svg');
+      hash.update(readFileSync(join(publicDir, 'simplepos-icon.svg')));
       const version = hash.digest("hex").slice(0, 16);
       const precache = ["/", "/simplepos-icon.svg", ...files.filter((file) => file !== "index.html").map((file) => `/${file}`)];
       this.emitFile({ type: "asset", fileName: "sw.js", source: workerSource(version, precache) });
-    },
+    } },
   };
 }
 

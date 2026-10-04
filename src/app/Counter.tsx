@@ -9,6 +9,8 @@ import { PosButton as Button } from '../ui/PosButton';
 import { Calculator } from '../ui/Calculator';
 import { Payment } from '../ui/Payment';
 import { Dialog } from '../ui/Dialog';
+import { GheePresets } from '../ui/GheePresets';
+import type { Preset } from '../domain/presets';
 import { applyUpdate, canUpdate, updateReady } from './updates';
 
 type SaleLine = Line & { id: string };
@@ -29,7 +31,7 @@ export default function Counter() {
   const [undo, setUndo] = useState<{ lines: SaleLine[]; label: string } | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
-  const [dialog, setDialog] = useState<'clear' | 'printer' | 'new-sale' | null>(null);
+  const [dialog, setDialog] = useState<'clear' | 'printer' | 'new-sale' | 'presets' | null>(null);
   const closeDialog = useCallback(() => setDialog(null), []);
   const [sounds, setSounds] = useState(sound.isEnabled());
   const [connected, setConnected] = useState(false);
@@ -44,6 +46,7 @@ export default function Counter() {
   const focus = useRef<HTMLOutputElement>(null);
   const basket = useRef<HTMLDivElement>(null);
   const consumedEntry = useRef(false);
+  const presetCommitted = useRef(false);
   const amount = total(lines);
   const [hasUpdate, setHasUpdate] = useState(updateReady);
   const safeUpdate = canUpdate({ stage, count: lines.length, entry: entry.value, multiplied: entry.multiplied, editing: editing !== null, busy, dialog: dialog !== null });
@@ -74,10 +77,7 @@ export default function Counter() {
   function mutate(next: SaleLine[], label: string) {
     total(next); setUndo({ lines, label }); setLines(next); setCash(''); setPrinted(false);
   }
-  function add() {
-    if (phase.current !== 'sale' || consumedEntry.current) return;
-    try {
-      const line = entryLine(entry);
+  function commitLine(line: Line) {
       const item = editing === null ? identify(line) : { ...line, id: editing };
       const next = editing === null ? [...lines, item] : lines.map(current => current.id === editing ? item : current);
       if (editing !== null && !lines.some(current => current.id === editing)) throw new Error('This item changed. Cancel the edit and select it again.');
@@ -85,7 +85,51 @@ export default function Counter() {
       consumedEntry.current = true; setEntry(emptyEntry()); setEditing(null); setHighlight(item.id);
       setMessage(`${editing === null ? 'Added' : 'Updated'}: ${item.quantity} × ${money(item.price)}`);
       focus.current?.focus({ preventScroll: true });
+  }
+  function add() {
+    if (phase.current !== 'sale' || consumedEntry.current) return;
+    try { commitLine(entryLine(entry)); } catch (error) { fail(error); }
+  }
+  function openPresets() {
+    if (phase.current !== 'sale' || editing !== null) return;
+    if (entry.value) { fail(new Error('Add or clear the current price before choosing a preset.')); focus.current?.focus({ preventScroll: true }); return; }
+    presetCommitted.current = false; setMessage(''); setDialog('presets');
+  }
+  function choosePreset(preset: Preset, brand: string) {
+    if (phase.current !== 'sale' || editing !== null || presetCommitted.current || dialog !== 'presets') return;
+    try {
+      commitLine({ quantity: entry.multiplied ? entry.quantity : 1, price: preset.price });
+      presetCommitted.current = true; closeDialog();
+      setMessage(`Added: ${brand}${preset.size ? ` ${preset.size}` : ''} · ${money(preset.price)}`);
     } catch (error) { fail(error); }
+  }
+  function edit(line: SaleLine) {
+    if (hasUnsavedEdit()) { fail(new Error('Save or cancel the current edit first.')); return; }
+    if (editing === null && (entry.value || entry.multiplied)) { fail(new Error('Add or clear the current price before editing an item.')); focus.current?.focus({ preventScroll: true }); return; }
+    setEditing(line.id); updateEntry({ quantity: line.quantity, value: (line.price / 100).toFixed(2), multiplied: true }); setMessage('');
+  }
+  function hasUnsavedEdit() {
+    if (editing === null) return false;
+    const original = lines.find(line => line.id === editing);
+    try {
+      const current = entryLine(entry);
+      return !original || current.quantity !== original.quantity || current.price !== original.price;
+    } catch { return true; }
+  }
+  function remove(id: string) {
+    mutate(lines.filter(item => item.id !== id), 'removal');
+    if (editing === id) resetEntry();
+    setMessage('Item removed.'); focus.current?.focus({ preventScroll: true });
+  }
+  function undoLast() {
+    if (!undo) return;
+    if (hasUnsavedEdit()) { fail(new Error('Save or cancel the current edit before Undo.')); return; }
+    if (editing !== null) resetEntry();
+    setLines(undo.lines); setUndo(null); setCash(''); setMessage('Action undone.'); focus.current?.focus({ preventScroll: true });
+  }
+  function changeMethod(next: 'cash' | 'other') {
+    if (next === method) return;
+    setMethod(next); setCash(''); setMessage('');
   }
   function pay() {
     if (!lines.length || phase.current !== 'sale') return;
@@ -166,18 +210,19 @@ export default function Counter() {
   return <main>
     <header><div><span className="brand-mark calculator-mark" aria-hidden="true"><img src="/simplepos-icon.svg" alt="" /></span><div><strong>BAHADOOR</strong><small>SIMPLE CALCULATOR POS</small></div></div>{hasUpdate && safeUpdate && <Button onClick={() => applyUpdate(() => updateBoundary.current)}>Apply update</Button>}<Button onClick={() => void openSettings()}>Printer ● {connected ? 'Connected' : 'Disconnected'} · Settings</Button></header>
     {stage === 'sale' ? <><div className="workspace">
-      <Calculator key={editing ?? 'new'} entry={entry} editing={editingIndex} focus={focus} setEntry={updateEntry} keypress={key} add={add} cancel={() => { resetEntry(); setMessage('Edit canceled.'); focus.current?.focus({ preventScroll: true }); }} />
+      <Calculator key={editing ?? 'new'} entry={entry} editing={editingIndex} focus={focus} setEntry={updateEntry} keypress={key} add={add} presets={openPresets} cancel={() => { resetEntry(); setMessage('Edit canceled.'); focus.current?.focus({ preventScroll: true }); }} />
       <section className="basket" aria-label="Current sale"><div className="section-label">CURRENT SALE<span>{lines.length} items</span></div>
         <div className="items" ref={basket}>{!lines.length ? <div className="empty"><span>＋</span><h2>Ready for your next customer</h2><p>Enter a price, then add an item.</p><small>Try 10 Enter · 2 × 20 Enter</small></div> : lines.map((line,index) => <article key={line.id} className={highlight === line.id ? 'recent-line' : ''}>
           <div><strong>Item {index + 1}</strong><small>{line.quantity} × {money(line.price)}</small></div><strong>{money(lineTotal(line))}</strong>
-          <Button aria-label={`Edit Item ${index + 1}`} onClick={() => { setEditing(line.id); updateEntry({ quantity: line.quantity, value: (line.price / 100).toFixed(2), multiplied: true }); setMessage(''); }}>Edit</Button>
-          <Button tone="delete" aria-label={`Delete Item ${index + 1}`} onClick={() => { mutate(lines.filter(item => item.id !== line.id), 'removal'); resetEntry(); setMessage('Item removed.'); }}>✕</Button>
+          <Button aria-label={`Edit Item ${index + 1}`} onClick={() => edit(line)}>Edit</Button>
+          <Button tone="delete" aria-label={`Delete Item ${index + 1}`} onClick={() => remove(line.id)}>✕</Button>
         </article>)}</div>
-        <div className="basket-tools">{undo && <Button onClick={() => { setLines(undo.lines); setUndo(null); resetEntry(); setCash(''); setMessage('Action undone.'); }}>Undo {undo.label}</Button>}<Button disabled={!lines.length} onClick={() => setDialog('clear')}>Clear sale</Button></div>
+        <div className="basket-tools">{undo && <Button onClick={undoLast}>Undo {undo.label}</Button>}<Button disabled={!lines.length} onClick={() => setDialog('clear')}>Clear sale</Button></div>
         <div className="total"><span>TOTAL{amount > subtotal(lines) && <small>Rounded up +{money(amount - subtotal(lines))}</small>}</span><strong data-testid="total">{money(amount)}</strong></div><Button className="primary pay" tone="positive" disabled={!lines.length} onClick={pay}>Pay — {money(amount)}</Button>
       </section>
-    </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} setCash={setCash} setMethod={next => { setMethod(next); setCash(''); setMessage(''); }} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed) newSale(); else setDialog('new-sale'); }} />}
+    </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed) newSale(); else setDialog('new-sale'); }} />}
     <div className={`message notice ${message ? 'has-message' : ''}`} role="status" aria-label="Counter message" aria-live="polite">{message}</div>
+    {dialog === 'presets' && <GheePresets quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
     {dialog === 'clear' && <Dialog title="Clear current sale?" close={closeDialog}><p>All current items will be removed.</p><Button onClick={closeDialog}>Cancel</Button><Button tone="delete" onClick={() => { mutate([], 'cleared sale'); resetEntry(); closeDialog(); setMessage('Sale cleared. Undo is available.'); }}>Clear</Button></Dialog>}
     {dialog === 'new-sale' && <Dialog title="Start a new sale?" close={closeDialog}><p>This receipt has not been confirmed sent. Starting a new sale discards it and hides the change.</p><Button onClick={closeDialog}>Keep receipt</Button><Button tone="positive" onClick={newSale}>Start new sale</Button></Dialog>}
     {dialog === 'printer' && <Dialog title="Printer settings" close={closeDialog}><Button onClick={closeDialog}>Done</Button><p>Selected: {printerName || 'None'} · {connected ? 'Connected' : 'Disconnected'}</p>

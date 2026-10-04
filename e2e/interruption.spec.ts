@@ -1,8 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test('twenty rapid lines keep controls stationary and undo the last edit', async ({ page }) => {
-  await page.goto('/');
+  await page.route('**/*.woff2', async route => { await new Promise(resolve => setTimeout(resolve, 800)); await route.continue(); });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: '+ Add Item', exact: true }).waitFor();
   const before = await page.getByRole('button', { name: '+ Add Item', exact: true }).boundingBox();
+  await page.evaluate(() => document.fonts.ready);
+  expect(await page.getByRole('button', { name: '+ Add Item', exact: true }).boundingBox()).toEqual(before);
   for (let i = 0; i < 20; i++) { await page.keyboard.type('2*10'); await page.keyboard.press('Enter'); }
   await expect(page.getByTestId('total')).toHaveText('Rs 400.00');
   expect(await page.getByRole('button', { name: '+ Add Item', exact: true }).boundingBox()).toEqual(before);
