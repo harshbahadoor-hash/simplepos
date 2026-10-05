@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { Capacitor } from '@capacitor/core';
 import { emptyEntry, enter, entryLine, lineTotal, money, parseMoney, subtotal, total, type Line } from '../domain/pos';
 import { readDraft, saveDraft } from '../domain/draft';
-import { receiptBytes } from '../domain/receipt';
+import { receiptBytes, testReceiptBytes } from '../domain/receipt';
 import { printer } from '../printer/adapter';
 import { sound } from '../sound/sound-manager';
 import { PosButton as Button } from '../ui/PosButton';
@@ -172,7 +172,7 @@ export default function Counter() {
     try {
       const snapshot = receipt.current;
       if (!test && !snapshot) throw new Error('Complete payment before printing.');
-      const bytes = test ? new Uint8Array([27,64,...new TextEncoder().encode('BAHADOOR SIMPLE POS\nPrinter test OK\n\n\n\n'),29,86,0]) : receiptBytes(snapshot!.lines, snapshot!.method, snapshot!.received, paper, snapshot!.date);
+      const bytes = test ? testReceiptBytes() : receiptBytes(snapshot!.lines, snapshot!.method, snapshot!.received, paper, snapshot!.date);
       await printer.printReceipt(bytes);
       if (!test) setPrinted(true);
       setMessage(test ? 'Test sent to printer.' : 'Receipt sent to printer.'); sound.playPositive();

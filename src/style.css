@@ -27,3 +27,56 @@
 /* Keep all four shortcuts on one row without reducing the numeric keypad. */
 .calculator>.calculator-shortcuts{display:grid;grid-template-columns:minmax(64px,.65fr) repeat(2,minmax(64px,1fr)) minmax(92px,1.2fr)}.calculator>.calculator-shortcuts>button{min-width:0;padding:8px;min-height:52px}.calculator-shortcuts>.oil-trigger{background:#edf3ff;border-color:#bdcce0;color:#234a70}.calculator-shortcuts>.cancel-edit{grid-column:span 2}.preset-grid.preset-types{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:760px){.calculator>.calculator-shortcuts{gap:8px}.preset-grid.preset-types{grid-template-columns:1fr}}
 @media(max-width:380px){header{flex-wrap:wrap}.calculator>.calculator-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Compact header and payment controls fit Android's larger text setting. */
+header{padding:8px 20px;min-height:64px;gap:12px}
+header>div{gap:10px;min-width:0}
+header strong{font-size:14px;line-height:1.1;letter-spacing:.08em}
+header small{font-size:10px;line-height:1.2;margin-top:3px}
+header .brand-mark{width:36px;height:36px;flex:none;border-radius:10px}
+header>button{min-height:48px;font-size:14px;line-height:1.2;padding:10px 16px}
+.payment button{line-height:1.2}
+@media(min-width:900px) and (orientation:landscape){
+  .payment{width:calc(100% - 40px);max-width:1360px;max-height:none;flex:1;min-height:0;margin:12px auto;padding:18px;gap:24px;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);overflow:auto}
+  .payment-input,.payment-summary{min-height:0;overflow:visible}
+  .cash-payment .payment-input{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto auto minmax(232px,1fr);gap:6px 12px;align-content:start}
+  .payment-input>small{grid-column:1;grid-row:1;margin:0;line-height:1.1}
+  .payment h1{grid-column:1;grid-row:2;font-size:30px;line-height:1.1;margin:0;overflow-wrap:anywhere}
+  .payment .entry-actions{grid-column:2;grid-row:1 / 3;margin:0;align-self:center;gap:8px}
+  .payment .entry-actions>button{min-width:80px;min-height:52px;padding:8px 12px}
+  .payment label{grid-column:1;grid-row:3;margin:6px 0 0;line-height:1.2}
+  .payment input{min-height:56px;margin-top:6px;padding:8px 12px;line-height:1.1}
+  .payment-input>button{grid-column:2;grid-row:3;align-self:end;margin:0;min-height:56px;padding:8px 12px}
+  .payment .shortcuts{grid-column:1 / -1;grid-row:4;margin:8px 0 2px;gap:8px}
+  .payment .shortcuts>button{min-height:52px;min-width:0;padding:8px;overflow-wrap:anywhere}
+  .cash-payment .cash-keypad{grid-column:1 / -1;grid-row:5;margin:0;min-height:232px;gap:8px;grid-template-rows:repeat(4,minmax(52px,1fr))}
+  .cash-payment .cash-keypad button{min-height:52px;padding:6px;font-size:26px;line-height:1.1}
+  .cash-payment .other-reminder{grid-column:1 / -1;grid-row:3 / -1;margin:12px 0 0;align-self:start}
+  .cash-payment .payment-summary{display:grid;grid-template-rows:minmax(0,1fr) 88px 56px;gap:12px;justify-content:normal}
+  .payment-summary>.change,.payment-summary>.due{margin:0;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0;overflow-wrap:anywhere}
+  .payment-summary strong{font-size:44px;line-height:1.15}
+  .payment-summary small{margin:0;line-height:1.4}
+  .payment-summary>button{margin:0;min-height:56px;padding:12px;font-size:18px}
+  .cash-payment .payment-summary>.primary{min-height:88px;font-size:22px}
+  .completed-payment .payment-input{display:flex;flex-direction:column;justify-content:center;gap:12px}
+  .completed-payment .payment-input>small{font-size:16px}
+  .completed-payment h1{font-size:40px;line-height:1.15}
+  .completed-payment .payment-summary{gap:12px;justify-content:flex-start}
+  .completed-payment .change{flex:1;min-height:140px}
+  .completed-payment .new-sale-area{margin:0;padding-top:12px;flex:none}
+  .completed-payment .new-sale-area p{margin:0;line-height:1.3}
+  .completed-payment .new-sale-area>button{min-height:80px;margin-top:10px;font-size:22px}
+}
+@media(min-width:900px) and (orientation:landscape) and (max-height:640px){
+  .payment{margin:10px auto;padding:14px;gap:18px}
+  .cash-payment h1{font-size:24px}
+  .payment-summary>.change,.payment-summary>.due{padding:18px}
+  .payment-summary strong{font-size:38px}
+  .completed-payment .change{min-height:110px}
+  .completed-payment .new-sale-area>button{min-height:64px}
+}
+@media(max-width:760px){
+  header{padding:8px 14px;flex-wrap:wrap}
+  header>button{font-size:12px;padding:8px 12px}
+  .payment button,.payment .entry-actions>button,.payment .shortcuts>button,.payment-input>button{min-height:48px}
+}

@@ -1,7 +1,7 @@
 import { useRef, type ButtonHTMLAttributes, type MouseEvent } from 'react';
 import { sound, type Sound } from '../sound/sound-manager';
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Sound };
-let trailingTap: { x: number; y: number; until: number } | null = null;
+let trailingTap: { x: number; y: number; until: number; area?: DOMRect } | null = null;
 function clearTrailingTap() {
   trailingTap = null;
   document.removeEventListener('pointerdown', shieldTrailingTap, true);
@@ -9,14 +9,16 @@ function clearTrailingTap() {
 }
 function shieldTrailingTap(event: globalThis.MouseEvent) {
   if (event.type === 'click' && event.detail === 0) { clearTrailingTap(); return; }
-  if (trailingTap && Date.now() < trailingTap.until && Math.hypot(event.clientX - trailingTap.x, event.clientY - trailingTap.y) <= 10) {
+  const area = trailingTap?.area;
+  const inArea = area && event.clientX >= area.left && event.clientX <= area.right && event.clientY >= area.top && event.clientY <= area.bottom;
+  if (trailingTap && Date.now() < trailingTap.until && (inArea || Math.hypot(event.clientX - trailingTap.x, event.clientY - trailingTap.y) <= 10)) {
     event.preventDefault(); event.stopPropagation();
   } else clearTrailingTap();
 }
 /** Changing an overlay must not retarget a second tap to its replacement control. */
-export function preventTapThrough(event: MouseEvent<HTMLButtonElement>) {
+export function preventTapThrough(event: MouseEvent<HTMLButtonElement>, protectButtonArea = false) {
   if (event.detail === 0) return;
-  trailingTap = { x: event.clientX, y: event.clientY, until: Date.now() + 500 };
+  trailingTap = { x: event.clientX, y: event.clientY, until: Date.now() + 500, area: protectButtonArea ? event.currentTarget.getBoundingClientRect() : undefined };
   document.addEventListener('pointerdown', shieldTrailingTap, true);
   document.addEventListener('click', shieldTrailingTap, true);
 }
