@@ -1,10 +1,12 @@
 import { cashPayment, money, parseMoney, quickCash } from '../domain/pos';
 import { PosButton as Button, preventTapThrough } from './PosButton';
 import { sound } from '../sound/sound-manager';
+import type { ReceiptLineMode } from '../domain/receipt';
 
-export function Payment({ total, cash, method, complete, busy, printed, setCash, setMethod, keypress, finish, back, print, next }: {
+export function Payment({ total, cash, method, complete, busy, printed, receiptMode, setReceiptMode, setCash, setMethod, keypress, finish, back, print, next }: {
   total: number; cash: string; method: 'cash' | 'other'; complete: boolean; busy: boolean; printed: boolean;
   setCash: (value: string) => void; setMethod: (method: 'cash' | 'other') => void; keypress: (key: string) => void;
+  receiptMode: ReceiptLineMode; setReceiptMode: (mode: ReceiptLineMode) => void;
   finish: () => void; back: () => void; print: () => void; next: () => void;
 }) {
   let received: number | null = null;
@@ -18,6 +20,7 @@ export function Payment({ total, cash, method, complete, busy, printed, setCash,
           <div className="keypad cash-keypad" role="group" aria-label="Cash keypad">{['7','8','9','4','5','6','1','2','3','0','.','⌫'].map(key => <Button key={key} onClick={() => keypress(key === '⌫' ? 'Backspace' : key)}>{key}</Button>)}</div><Button className="clear-cash" onClick={() => setCash('')}>Clear cash</Button>
         </> : <p className="other-reminder">Verify the card or mobile payment was received before completing this sale.</p>}
       </>}
+      {complete && <div className="receipt-format"><small>RECEIPT LINES</small><div role="group" aria-label="Receipt line format"><Button disabled={busy} className={receiptMode === 'original' ? 'selected' : ''} aria-pressed={receiptMode === 'original'} onClick={() => setReceiptMode('original')}>Original</Button><Button disabled={busy} className={receiptMode === 'compact' ? 'selected' : ''} aria-pressed={receiptMode === 'compact'} onClick={() => setReceiptMode('compact')}>Combine same prices</Button></div><p>Combines equal unit prices for printing only.</p></div>}
     </div>
     <div className="payment-summary">
       {method === 'cash' ? complete || (payment && !payment.shortfall) ? <div className="change"><span>CHANGE</span><strong data-testid="change">{money(payment?.change ?? 0)}</strong>{complete && <small>Cash received {money(received ?? 0)}</small>}</div> : <div className="due"><span>STILL DUE</span><strong data-testid="due">{money(payment?.shortfall ?? total)}</strong><small>{received === null && cash ? 'Enter a valid cash amount.' : 'Enter cash received or choose Exact.'}</small></div> : <div className="change"><span>PAYMENT</span><strong className="other-label">Other</strong></div>}

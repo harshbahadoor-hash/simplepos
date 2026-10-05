@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { Capacitor } from '@capacitor/core';
 import { emptyEntry, enter, entryLine, lineTotal, money, parseMoney, subtotal, total, type Line } from '../domain/pos';
 import { readDraft, saveDraft } from '../domain/draft';
-import { receiptBytes, testReceiptBytes } from '../domain/receipt';
+import { receiptBytes, testReceiptBytes, type ReceiptLineMode } from '../domain/receipt';
 import { printer } from '../printer/adapter';
 import { sound } from '../sound/sound-manager';
 import { PosButton as Button } from '../ui/PosButton';
@@ -40,6 +40,7 @@ export default function Counter() {
   const [printerName, setPrinterName] = useState(() => preference('simplePosPrinterName'));
   const [address, setAddress] = useState(() => preference('simplePosPrinterAddress'));
   const [paper, setPaper] = useState<58 | 80>(() => preference('simplePosPaper') === '80' ? 80 : 58);
+  const [receiptMode, setReceiptMode] = useState<ReceiptLineMode>(() => preference('simplePosReceiptMode') === 'compact' ? 'compact' : 'original');
   const [busy, setBusy] = useState(false);
   const [printed, setPrinted] = useState(false);
   const printing = useRef(false);
@@ -132,6 +133,9 @@ export default function Counter() {
     if (next === method) return;
     setMethod(next); setCash(''); setMessage('');
   }
+  function changeReceiptMode(mode: ReceiptLineMode) {
+    setReceiptMode(mode); remember('simplePosReceiptMode', mode);
+  }
   function pay() {
     if (!lines.length || phase.current !== 'sale') return;
     if (entry.value || entry.multiplied || editing !== null) { fail(new Error('Add or clear the current price before payment. Finish or cancel the edit first.')); focus.current?.focus({ preventScroll: true }); return; }
@@ -172,7 +176,7 @@ export default function Counter() {
     try {
       const snapshot = receipt.current;
       if (!test && !snapshot) throw new Error('Complete payment before printing.');
-      const bytes = test ? testReceiptBytes() : receiptBytes(snapshot!.lines, snapshot!.method, snapshot!.received, paper, snapshot!.date);
+      const bytes = test ? testReceiptBytes() : receiptBytes(snapshot!.lines, snapshot!.method, snapshot!.received, paper, snapshot!.date, receiptMode);
       await printer.printReceipt(bytes);
       if (!test) setPrinted(true);
       setMessage(test ? 'Test sent to printer.' : 'Receipt sent to printer.'); sound.playPositive();
@@ -221,7 +225,7 @@ export default function Counter() {
         <div className="basket-tools">{undo && <Button onClick={undoLast}>Undo {undo.label}</Button>}<Button disabled={!lines.length} onClick={() => setDialog('clear')}>Clear sale</Button></div>
         <div className="total"><span>TOTAL{amount > subtotal(lines) && <small>Rounded up +{money(amount - subtotal(lines))}</small>}</span><strong data-testid="total">{money(amount)}</strong></div><Button className="primary pay" tone="positive" disabled={!lines.length} onClick={pay}>Pay — {money(amount)}</Button>
       </section>
-    </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed) newSale(); else setDialog('new-sale'); }} />}
+    </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} receiptMode={receiptMode} setReceiptMode={changeReceiptMode} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed) newSale(); else setDialog('new-sale'); }} />}
     <div className={`message notice ${message ? 'has-message' : ''}`} role="status" aria-label="Counter message" aria-live="polite">{message}</div>
     {dialog === 'presets' && <PresetPicker key={presetMenu} menu={presetMenu} quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
     {dialog === 'clear' && <Dialog title="Clear current sale?" close={closeDialog}><p>All current items will be removed.</p><Button onClick={closeDialog}>Cancel</Button><Button tone="delete" onClick={() => { mutate([], 'cleared sale'); resetEntry(); closeDialog(); setMessage('Sale cleared. Undo is available.'); }}>Clear</Button></Dialog>}
@@ -233,6 +237,7 @@ export default function Counter() {
       <p>{Capacitor.isNativePlatform() ? 'Pair a printer in Android Bluetooth settings, then select it above.' : 'Bluetooth Classic printers require the Android app. Browser printing supports compatible BLE printers.'}</p>
       <div className="entry-actions">{([58,80] as const).map(width => <Button key={width} className={paper === width ? 'selected' : ''} aria-pressed={paper === width} onClick={() => { setPaper(width); remember('simplePosPaper', String(width)); }}>{width} mm</Button>)}</div>
       <Button disabled={busy || !connected} onClick={() => void print(true)}>Test Print</Button><Button disabled={busy || !connected} onClick={() => void printer.disconnect().then(() => setConnected(false)).catch(fail)}>Disconnect</Button>
+      <Button disabled={busy} aria-pressed={receiptMode === 'compact'} onClick={() => changeReceiptMode(receiptMode === 'compact' ? 'original' : 'compact')}>Combine same-price receipt lines · {receiptMode === 'compact' ? 'ON' : 'OFF'}</Button>
       <Button aria-pressed={sounds} onClick={() => { sound.setEnabled(!sounds); setSounds(!sounds); }}>Button Sounds · {sounds ? 'ON' : 'OFF'}</Button>
     </Dialog>}
   </main>;

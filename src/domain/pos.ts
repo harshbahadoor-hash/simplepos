@@ -11,7 +11,7 @@ export function parseMoney(value: string): number {
   const [whole = '0', fraction = ''] = value.split('.');
   return safe(Number(whole) * 100 + Number(fraction.padEnd(2, '0')));
 }
-function quantityUnits(value: string): number {
+export function quantityUnits(value: string): number {
   if (!/^\d+(?:\.\d{0,2})?$/.test(value)) throw new Error('Quantity must be positive with at most two decimal places.');
   const [whole = '0', fraction = ''] = value.split('.');
   const units = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));

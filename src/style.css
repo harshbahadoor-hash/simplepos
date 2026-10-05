@@ -29,6 +29,10 @@
 @media(max-width:380px){header{flex-wrap:wrap}.calculator>.calculator-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 /* Compact header and payment controls fit Android's larger text setting. */
+.receipt-format{margin-top:16px}
+.receipt-format>div{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.receipt-format button{min-height:52px;padding:12px;font-size:16px}
+.receipt-format p{font-size:13px;line-height:1.4;margin-top:8px;color:#627369}
 header{padding:8px 20px;min-height:64px;gap:12px}
 header>div{gap:10px;min-width:0}
 header strong{font-size:14px;line-height:1.1;letter-spacing:.08em}

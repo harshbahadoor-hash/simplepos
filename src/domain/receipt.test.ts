@@ -58,3 +58,27 @@ it.each([58, 80] as const)('uses less paper at %s mm without shrinking text or c
   expect(receipt.rows.every(row => row.trim().length > 0 && row.length <= (width === 58 ? 32 : 48))).toBe(true);
   expect(receipt.rows.join('\n')).toMatch(/TOTAL +Rs 140.00\nCash +Rs 200.00\nChange +Rs 60.00\nThank you/);
 });
+
+it.each([58, 80] as const)('combines equal unit prices only on the %s mm receipt, in first-seen order', width => {
+  const lines = [{ quantity: 1, price: 4000 }, { quantity: 1, price: 2000 }, { quantity: 1, price: 3000 }, { quantity: 2.5, price: 2000 }, { quantity: 2, price: 4000 }];
+  const unchanged = structuredClone(lines), date = new Date('2026-10-05T08:00:00Z');
+  const compact = paperLayout(receiptBytes(lines, 'cash', 30000, width, date, 'compact'));
+  const original = paperLayout(receiptBytes(lines, 'cash', 30000, width, date, 'original'));
+  expect(compact.rows.filter(row => /^\d+\./.test(row))).toEqual([
+    expect.stringMatching(/^1\. 3 x 40.00 +120.00$/), expect.stringMatching(/^2\. 3.5 x 20.00 +70.00$/), expect.stringMatching(/^3\. 1 x 30.00 +30.00$/),
+  ]);
+  expect(original.rows.filter(row => /^\d+\./.test(row))).toHaveLength(5);
+  for (const receipt of [compact, original]) {
+    expect(receipt.rows.join('\n')).toMatch(/TOTAL +Rs 220.00\nCash +Rs 300.00\nChange +Rs 80.00/);
+    expect(receipt.cuts).toBe(1); expect(receipt.finalTextClearance).toBeGreaterThanOrEqual(120);
+  }
+  expect(compact.feed).toBeLessThan(original.feed); expect(lines).toEqual(unchanged);
+});
+it('combines decimal quantities without floating point tails and preserves original per-line rounding', () => {
+  const simple = paperLayout(receiptBytes([{ quantity: 0.1, price: 2000 }, { quantity: 0.2, price: 2000 }], 'other', 0, 58, new Date(), 'compact'));
+  expect(simple.rows).toContainEqual(expect.stringMatching(/^1\. 0.3 x 20.00 +6.00$/));
+  const rounded = paperLayout(receiptBytes([{ quantity: 1.25, price: 1550 }, { quantity: 1.25, price: 1550 }], 'cash', 5000, 58, new Date(), 'compact'));
+  expect(rounded.rows).toContainEqual(expect.stringMatching(/^1\. 2.5 x 15.50 +38.76$/));
+  expect(rounded.rows).toContain('Original line rounding retained');
+  expect(rounded.rows.join('\n')).toMatch(/Subtotal +Rs 38.76\nRound up +Rs 0.24\nTOTAL +Rs 39.00\nCash +Rs 50.00\nChange +Rs 11.00/);
+});
