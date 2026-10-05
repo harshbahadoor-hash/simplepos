@@ -7,13 +7,14 @@ const oils = [
     { name: 'Tristar', sizes: [['500 ml', 150], ['1 L', 260]] },
     { name: 'RKG', sizes: [['500 ml', 160], ['1 L', 290]] },
   ] },
-  { type: 'Mustard oil', total: 'Rs 1,670.00', brands: [
+  { type: 'Mustard oil', total: 'Rs 1,845.00', brands: [
     { name: 'Badye', sizes: [['100 ml', 35], ['500 ml', 80]] },
     { name: 'Vishal', sizes: [['200 ml', 55], ['500 ml', 100], ['1 L', 200]] },
     { name: 'Patanjali', sizes: [['1 L', 230]] },
     { name: 'RKG', sizes: [['200 ml', 65], ['500 ml', 130], ['1 L', 200]] },
     { name: 'Dabur', sizes: [['1 L', 200]] },
     { name: 'Mughal', sizes: [['250 ml', 65], ['500 ml', 110], ['1 L', 200]] },
+    { name: 'Nihar', sizes: [['1 L', 175]] },
   ] },
   { type: 'Sesame oil', total: 'Rs 950.00', brands: [
     { name: 'Badye', sizes: [['100 ml', 35], ['500 ml', 80]] },
@@ -23,6 +24,11 @@ const oils = [
   ] },
   { type: 'Chameli oil', total: 'Rs 490.00', brands: [
     { name: '', sizes: [['100 ml', 75], ['200 ml', 140], ['500 ml', 275]] },
+  ] },
+  { type: 'Pooja oil', total: 'Rs 815.00', brands: [
+    { name: 'Samarpan', sizes: [['500 ml', 90], ['1 L', 150]] },
+    { name: 'Om Shanti', sizes: [['500 ml', 125]] },
+    { name: 'Pavithram', sizes: [['475 ml', 175], ['950 ml', 275]] },
   ] },
 ] as const;
 
@@ -131,19 +137,22 @@ test('shortcuts remain reachable on a 320px screen without horizontal overflow',
   await expect(page.getByTestId('total')).toHaveText('Rs 75.00');
 });
 
-test('updated ghee options add sized Gavardhan, Stanwood and Trishul lines', async ({ page }) => {
+test('updated ghee options add all supplied new and corrected size choices', async ({ page }) => {
   await page.goto('/');
   for (const [brand, size, price] of [
     ['Gavardhan ghee', '200 ml', 150], ['Gavardhan ghee', '500 ml', 300], ['Gavardhan ghee', '1 L', 550],
     ['Stanwood ghee', '200 ml', 90], ['Stanwood ghee', '500 ml', 160], ['Stanwood ghee', '1 L', 285],
     ['Trishul ghee', '100 ml', 50], ['Trishul ghee', '200 ml', 80], ['Trishul ghee', '500 ml', 135], ['Trishul ghee', '1 L', 235],
+    ['Ananda ghee', '200 ml', 135], ['Ananda ghee', '500 ml', 250], ['Ananda ghee', '5 L', 2350],
+    ['Mother Dairy ghee', '1 L', 475],
   ] as const) {
     await button(page, 'Ghee').click(); await button(page, brand).click();
-    await button(page, `${size} · Rs ${price.toFixed(2)}`).click();
-    await expect(page.locator('.items article').last()).toContainText(`1 × Rs ${price.toFixed(2)}`);
+    const formatted = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price);
+    await button(page, `${size} · Rs ${formatted}`).click();
+    await expect(page.locator('.items article').last()).toContainText(`1 × Rs ${formatted}`);
   }
-  await expect(page.locator('.items article')).toHaveCount(10);
-  await expect(page.getByTestId('total')).toHaveText('Rs 2,035.00');
+  await expect(page.locator('.items article')).toHaveCount(14);
+  await expect(page.getByTestId('total')).toHaveText('Rs 5,245.00');
 });
 
 test('mixed oil and ghee receipt uses numbered prices, rounds total and sends cut', async ({ page }) => {
@@ -156,18 +165,20 @@ test('mixed oil and ghee receipt uses numbered prices, rounds total and sends cu
   await page.goto('/');
   await page.getByRole('button', { name: /Settings/ }).click(); await button(page, 'Change Printer (BLE)').click();
   await expect(page.getByText('Selected: XP-80 · Connected')).toBeVisible(); await button(page, 'Done').click();
-  await page.keyboard.type('1.25*'); await chooseOil(page, 'Mustard oil', 'Badye', '100 ml', 35);
-  await chooseOil(page, 'Chameli oil', '', '200 ml', 140);
-  await button(page, 'Ghee').click(); await button(page, 'Gavardhan ghee').click(); await button(page, '200 ml · Rs 150.00').click();
-  await expect(page.getByTestId('total')).toHaveText('Rs 334.00');
-  await page.getByRole('button', { name: 'Pay —' }).click(); await button(page, 'Cash 500').click();
-  await expect(page.getByTestId('change')).toHaveText('Rs 166.00'); await button(page, 'Complete & Print').click();
+  await page.keyboard.type('1.25*'); await chooseOil(page, 'Mustard oil', 'Nihar', '1 L', 175);
+  await chooseOil(page, 'Pooja oil', 'Pavithram', '475 ml', 175);
+  await button(page, 'Ghee').click(); await button(page, 'Ananda ghee').click(); await button(page, '200 ml · Rs 135.00').click();
+  await button(page, 'Ghee').click(); await button(page, 'Mother Dairy ghee').click(); await button(page, '1 L · Rs 475.00').click();
+  await expect(page.getByTestId('total')).toHaveText('Rs 1,004.00');
+  await page.getByRole('button', { name: 'Pay —' }).click(); await button(page, 'Cash 2000').click();
+  await expect(page.getByTestId('change')).toHaveText('Rs 996.00'); await button(page, 'Complete & Print').click();
   await expect(page.getByRole('status', { name: 'Counter message' })).toHaveText('Receipt sent to printer.');
   const bytes: number[] = await page.evaluate(() => Reflect.get(window, 'receiptOutput'));
   const receipt = new TextDecoder().decode(new Uint8Array(bytes));
-  expect(receipt).toContain('1. 1.25 x 35.00'); expect(receipt).toContain('2. 1 x 140.00'); expect(receipt).toContain('3. 1 x 150.00');
-  expect(receipt).toMatch(/Subtotal\s+Rs 333.75/); expect(receipt).toMatch(/Round up\s+Rs 0.25/); expect(receipt).toMatch(/TOTAL\s+Rs 334.00/);
-  expect(receipt).not.toMatch(/oil|badye|mustard|chameli|ghee|gavardhan|100 ml|200 ml/i);
+  expect(receipt).toContain('1. 1.25 x 175.00'); expect(receipt).toContain('2. 1 x 175.00'); expect(receipt).toContain('3. 1 x 135.00'); expect(receipt).toContain('4. 1 x 475.00');
+  expect(receipt).toMatch(/Subtotal\s+Rs 1003.75/); expect(receipt).toMatch(/Round up\s+Rs 0.25/); expect(receipt).toMatch(/TOTAL\s+Rs 1004.00/);
+  // POOJA belongs in the fixed shop header; product/category names do not.
+  expect(receipt).not.toMatch(/oil|nihar|mustard|pavithram|ghee|ananda|mother dairy|475 ml|200 ml/i);
   expect(bytes.slice(-3)).toEqual([29, 86, 0]);
-  await expect(page.getByTestId('change')).toHaveText('Rs 166.00');
+  await expect(page.getByTestId('change')).toHaveText('Rs 996.00');
 });

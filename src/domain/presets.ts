@@ -17,6 +17,8 @@ export const gheeBrands: readonly PresetBrand[] = [
   { name: 'Gavardhan ghee', options: [{ size: '200 ml', price: 15000 }, { size: '500 ml', price: 30000 }, { size: '1 L', price: 55000 }] },
   { name: 'Stanwood ghee', options: [{ size: '200 ml', price: 9000 }, { size: '500 ml', price: 16000 }, { size: '1 L', price: 28500 }] },
   { name: 'Trishul ghee', options: [{ size: '100 ml', price: 5000 }, { size: '200 ml', price: 8000 }, { size: '500 ml', price: 13500 }, { size: '1 L', price: 23500 }] },
+  { name: 'Ananda ghee', options: [{ size: '200 ml', price: 13500 }, { size: '500 ml', price: 25000 }, { size: '5 L', price: 235000 }] },
+  { name: 'Mother Dairy ghee', options: [{ size: '1 L', price: 47500 }] },
 ];
 
 export const oilTypes: readonly PresetCategory[] = [
@@ -32,6 +34,7 @@ export const oilTypes: readonly PresetCategory[] = [
     { name: 'RKG', options: [{ size: '200 ml', price: 6500 }, { size: '500 ml', price: 13000 }, { size: '1 L', price: 20000 }] },
     { name: 'Dabur', options: [{ size: '1 L', price: 20000 }] },
     { name: 'Mughal', options: [{ size: '250 ml', price: 6500 }, { size: '500 ml', price: 11000 }, { size: '1 L', price: 20000 }] },
+    { name: 'Nihar', options: [{ size: '1 L', price: 17500 }] },
   ] },
   { name: 'Sesame oil', brands: [
     { name: 'Badye', options: [{ size: '100 ml', price: 3500 }, { size: '500 ml', price: 8000 }] },
@@ -40,4 +43,9 @@ export const oilTypes: readonly PresetCategory[] = [
     { name: 'Patanjali', options: [{ size: '1 L', price: 26000 }] },
   ] },
   { name: 'Chameli oil', options: [{ size: '100 ml', price: 7500 }, { size: '200 ml', price: 14000 }, { size: '500 ml', price: 27500 }] },
+  { name: 'Pooja oil', brands: [
+    { name: 'Samarpan', options: [{ size: '500 ml', price: 9000 }, { size: '1 L', price: 15000 }] },
+    { name: 'Om Shanti', options: [{ size: '500 ml', price: 12500 }] },
+    { name: 'Pavithram', options: [{ size: '475 ml', price: 17500 }, { size: '950 ml', price: 27500 }] },
+  ] },
 ];
