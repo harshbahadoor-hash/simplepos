@@ -27,4 +27,11 @@ There are now twelve Ghee brands/39 choices and five Oil types/35 choices. All e
 - The user's pre-existing two-test deletion in `e2e/sale.spec.ts` remains untouched and unstaged; CI runs the full tracked sale suite.
 - ADB enumerated no connected tablet in this run. Receipt verification uses the browser Bluetooth boundary; no new physical print is claimed.
 
-Final `npm run check` passed: type checking, lint, 16 unit tests and 136 browser checks, with two intentional viewport-only skips. Production rollout results follow after execution.
+Final `npm run check` passed: type checking, lint, 16 unit tests and 136 browser checks, with two intentional viewport-only skips.
+
+## Production rollout
+
+- Code commit `df6efdbdb08373b6658e5b67151fccc646e08278` passed [GitHub CI](https://github.com/harshbahadoor-hash/simplepos/actions/runs/37271190926): 16 unit tests, 142 browser checks, two intentional viewport-only skips and all three native lifecycle checks. CI includes the full tracked sale suite.
+- Static release is live from `/srv/simplepos/releases/20261005-pooja-presets`, with the current symlink verified. HTTPS returned 200.
+- A fresh production browser selected every one of the ten added size/price choices at the supplied price, producing ten generic lines totaling Rs 4,200. Screenshots verified the five Oil type buttons and the three Pooja brands at Samsung dimensions and 20.8 px text scale.
+- The Android frontend receives the same service-worker update. With an empty sale, reopen the app and use Apply update if offered. No native printer changes or Android reinstall are required.
