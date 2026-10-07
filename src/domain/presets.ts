@@ -8,7 +8,7 @@ export type PresetCategory = { name: string } & (
 );
 export const gheeBrands: readonly PresetBrand[] = [
   { name: 'Gopal ghee', options: [{ size: '150 ml', price: 13000 }, { size: '400 ml', price: 26000 }, { size: '800 ml', price: 47500 }] },
-  { name: 'Cow ghee', options: [{ size: '150 g', price: 11000 }, { size: '400 g', price: 25000 }, { size: '800 g', price: 47500 }] },
+  { name: 'Cow ghee', options: [{ size: '150 g', price: 11500 }, { size: '400 g', price: 27500 }, { size: '800 g', price: 50000 }, { size: '1.6 kg', price: 90000 }] },
   { name: 'RKG ghee', options: [{ size: '200 ml', price: 14500 }, { size: '500 ml', price: 29500 }, { size: '1 L', price: 52500 }, { size: '5 L', price: 265000 }, { size: '400 g', price: 26000 }, { size: '800 g', price: 47500 }, { size: '1600 g', price: 91500 }] },
   { name: 'Agni ghee', options: [{ size: '500 ml', price: 15000 }, { size: '1 L', price: 25000 }] },
   { name: 'Patanjali ghee', options: [{ size: '452 g', price: 27500 }, { size: '905 g', price: 48500 }] },
