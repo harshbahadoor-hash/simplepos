@@ -50,9 +50,13 @@ test('all five roots and direct named, size, and price-only choices work in the 
   ] });
   await page.route('**/preset-config/current', route => route.fulfill({ json:document }));
   await page.goto('/');
-  await page.addStyleTag({ content:'body{font-size:20.8px}' });
+  await page.addStyleTag({ content:'body{font-size:20.8px}.preset-panel-options>button>strong,.preset-panel-options>button>span{font-size:20.8px}' });
   const panel = page.getByRole('region', { name:'Quick presets' });
   await panel.getByRole('button', { name:'Open preset Pooja items',exact:true }).click();
+  const named=panel.getByRole('button',{name:'Add preset Incense sticks · Rs 35.50',exact:true});
+  const namedBox=await named.boundingBox();
+  const amountBox=await named.locator('span').boundingBox();
+  expect(amountBox!.y+amountBox!.height).toBeLessThanOrEqual(namedBox!.y+namedBox!.height-8);
   await panel.getByRole('button', { name:'Add preset Incense sticks · Rs 35.50',exact:true }).click();
   await expect(page.getByTestId('total')).toHaveText('Rs 36.00');
   await panel.getByRole('button', { name:'Add preset 100 ml · Rs 15.50',exact:true }).click();
