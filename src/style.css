@@ -56,12 +56,13 @@ header>button{min-height:48px;font-size:14px;line-height:1.2;padding:10px 16px}
   .cash-payment .cash-keypad{grid-column:1 / -1;grid-row:5;margin:0;min-height:232px;gap:8px;grid-template-rows:repeat(4,minmax(52px,1fr))}
   .cash-payment .cash-keypad button{min-height:52px;padding:6px;font-size:26px;line-height:1.1}
   .cash-payment .other-reminder{grid-column:1 / -1;grid-row:3 / -1;margin:12px 0 0;align-self:start}
-  .cash-payment .payment-summary{display:grid;grid-template-rows:minmax(0,1fr) 88px 56px;gap:12px;justify-content:normal}
+  .cash-payment .payment-summary{display:grid;grid-template-rows:minmax(0,1fr) 88px 64px 56px;gap:12px;justify-content:normal}
   .payment-summary>.change,.payment-summary>.due{margin:0;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0;overflow-wrap:anywhere}
   .payment-summary strong{font-size:44px;line-height:1.15}
   .payment-summary small{margin:0;line-height:1.4}
   .payment-summary>button{margin:0;min-height:56px;padding:12px;font-size:18px}
   .cash-payment .payment-summary>.primary{min-height:88px;font-size:22px}
+  .cash-payment .payment-summary>.complete-no-print{font-size:16px;border-color:#08664f;color:#08664f;background:#e7f3ed}
   .completed-payment .payment-input{display:flex;flex-direction:column;justify-content:center;gap:12px}
   .completed-payment .payment-input>small{font-size:16px}
   .completed-payment h1{font-size:40px;line-height:1.15}

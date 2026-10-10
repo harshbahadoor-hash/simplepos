@@ -98,6 +98,8 @@ test('double tapping Complete cannot print again through the replacement button'
   await page.getByRole('button', { name: 'Complete & Print', exact: true }).dblclick();
   await expect(page.getByRole('button', { name: 'Print Again', exact: true })).toBeVisible();
   expect(await receiptCount(page)).toBe(1);
+  // Start a separate intentional gesture after the completion tap-through shield.
+  await page.waitForTimeout(550);
   await page.getByRole('button', { name: 'New Sale', exact: true }).dblclick();
   await expect(page.getByTestId('total')).toHaveText('Rs 0.00'); await expect(page.locator('output')).toHaveText('0');
 });
@@ -107,11 +109,25 @@ test('two fast touch taps with finger drift cannot reprint the completed receipt
   await connectTestPrinter(page); await androidTextScale(page);
   await page.getByRole('button', { name: 'Cash 200', exact: true }).click();
   const bounds = (await page.getByRole('button', { name: 'Complete & Print', exact: true }).boundingBox())!;
-  const x = bounds.x + bounds.width / 2, y = bounds.y + 12;
+  const x = bounds.x + bounds.width / 2, y = bounds.y + bounds.height - 12;
   await page.touchscreen.tap(x, y);
   await page.waitForTimeout(130); // Reproduce a fast second touch with ordinary finger drift.
-  expect(await page.evaluate(({ x, y }) => document.elementFromPoint(x + 12, y)?.textContent, { x, y })).toBe('Print Again');
+  expect(await page.evaluate(({ x, y }) => document.elementFromPoint(x + 12, y)?.closest('button')?.textContent, { x, y })).toBe('Print Again');
   await page.touchscreen.tap(x + 12, y);
   await expect(page.getByRole('button', { name: 'Print Again', exact: true })).toBeVisible();
   expect(await receiptCount(page)).toBe(1);
+});
+
+test('two fast no-print touches cannot start the next customer and hide change', async ({ page }) => {
+  test.skip(test.info().project.name !== 'samsung-sm-x230', 'Actual tablet touch geometry');
+  await payment(page); await androidTextScale(page);
+  await page.getByRole('button', { name: 'Cash 200', exact: true }).click();
+  const bounds = (await page.getByRole('button', { name: 'Complete Without Printing', exact: true }).boundingBox())!;
+  const x = bounds.x + bounds.width / 2, y = bounds.y + bounds.height - 6;
+  await page.touchscreen.tap(x, y);
+  await page.waitForTimeout(130); // Reproduce finger drift while the sale changes screens.
+  expect(await page.evaluate(({ x, y }) => document.elementFromPoint(x + 12, y)?.closest('button')?.textContent, { x, y })).toBe('New Sale');
+  await page.touchscreen.tap(x + 12, y);
+  await expect(page.getByTestId('change')).toHaveText('Rs 60.00');
+  await expect(page.getByRole('button', { name: 'Print Receipt', exact: true })).toBeVisible();
 });

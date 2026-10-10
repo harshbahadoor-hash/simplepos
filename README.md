@@ -4,6 +4,8 @@ A local calculator, temporary basket, payment calculator and Bluetooth receipt p
 
 ## Run
 
+On payment, choose **Complete & Print** or **Complete Without Printing**. Both validate the payment and keep change visible. Completing without printing never contacts the printer; **Print Receipt** remains available until **New Sale**, which starts the next customer directly when printing was intentionally skipped.
+
 Use Node 24 or newer. Run `npm ci` then `npm run dev`. `npm run build` creates static files in `dist/`. `npm run check` runs type checking, lint, unit tests and browser acceptance tests; install Chromium first with `npx playwright install chromium`. With a JDK available, `npm run test:native` checks lifecycle races by compiling the actual printer plugin against controlled platform stubs. CI runs both checks. The stubs exercise threading and cancellation, not Bluetooth radio or paper output.
 
 Enter prices and press Enter to add. `2 * 20 Enter` adds two items at Rs 20 each. Escape clears entry. Edit and delete controls update the total immediately. Cash payment shows change until New Sale. Printer failures retain the completed sale for retry. Sound and printer preferences are stored locally; the unfinished basket is recovered within the same browser tab through sessionStorage. Completion or New Sale clears that draft. Completed sales remain in memory only.

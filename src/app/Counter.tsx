@@ -43,6 +43,7 @@ export default function Counter() {
   const [receiptMode, setReceiptMode] = useState<ReceiptLineMode>(() => preference('simplePosReceiptMode') === 'compact' ? 'compact' : 'original');
   const [busy, setBusy] = useState(false);
   const [printed, setPrinted] = useState(false);
+  const [printSkipped, setPrintSkipped] = useState(false);
   const printing = useRef(false);
   const receipt = useRef<Receipt | null>(null);
   const focus = useRef<HTMLOutputElement>(null);
@@ -168,7 +169,7 @@ export default function Counter() {
   function newSale() {
     if (printing.current) return;
     phase.current = 'sale'; setStage('sale'); setLines([]); resetEntry(); setUndo(null); setCash(''); setMethod('cash');
-    setMessage(''); setPrinted(false); receipt.current = null; setDialog(null);
+    setMessage(''); setPrinted(false); setPrintSkipped(false); receipt.current = null; setDialog(null);
   }
   async function print(test = false) {
     if (printing.current) return;
@@ -183,14 +184,15 @@ export default function Counter() {
     } catch (error) { fail(error); }
     finally { setConnected(printer.isConnected()); setBusy(false); printing.current = false; }
   }
-  function complete() {
+  function complete(withPrinting: boolean) {
     if (phase.current !== 'payment' || printing.current) return;
     try {
       if (method === 'cash' && (!cash || cash.endsWith('.'))) throw new Error('Finish entering the cash amount or choose Exact.');
       const received = method === 'cash' ? parseMoney(cash) : 0;
       if (method === 'cash' && received < amount) throw new Error(`Cash received is ${money(amount - received)} short.`);
       phase.current = 'complete'; receipt.current = { lines: lines.map(line => ({ ...line })), method, received, date: new Date() };
-      setStage('complete'); setUndo(null); void print();
+      setStage('complete'); setUndo(null); setPrintSkipped(!withPrinting);
+      if (withPrinting) void print(); else setMessage('Sale complete without printing.');
     } catch (error) { fail(error); }
   }
   async function connect(selectedAddress?: string, name?: string, reconnect = false) {
@@ -225,7 +227,7 @@ export default function Counter() {
         <div className="basket-tools">{undo && <Button onClick={undoLast}>Undo {undo.label}</Button>}<Button disabled={!lines.length} onClick={() => setDialog('clear')}>Clear sale</Button></div>
         <div className="total"><span>TOTAL{amount > subtotal(lines) && <small>Rounded up +{money(amount - subtotal(lines))}</small>}</span><strong data-testid="total">{money(amount)}</strong></div><Button className="primary pay" tone="positive" disabled={!lines.length} onClick={pay}>Pay — {money(amount)}</Button>
       </section>
-    </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} receiptMode={receiptMode} setReceiptMode={changeReceiptMode} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed) newSale(); else setDialog('new-sale'); }} />}
+    </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} printSkipped={printSkipped} receiptMode={receiptMode} setReceiptMode={changeReceiptMode} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed || printSkipped) newSale(); else setDialog('new-sale'); }} />}
     <div className={`message notice ${message ? 'has-message' : ''}`} role="status" aria-label="Counter message" aria-live="polite">{message}</div>
     {dialog === 'presets' && <PresetPicker key={presetMenu} menu={presetMenu} quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
     {dialog === 'clear' && <Dialog title="Clear current sale?" close={closeDialog}><p>All current items will be removed.</p><Button onClick={closeDialog}>Cancel</Button><Button tone="delete" onClick={() => { mutate([], 'cleared sale'); resetEntry(); closeDialog(); setMessage('Sale cleared. Undo is available.'); }}>Clear</Button></Dialog>}

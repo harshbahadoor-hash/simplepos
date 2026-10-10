@@ -3,11 +3,11 @@ import { PosButton as Button, preventTapThrough } from './PosButton';
 import { sound } from '../sound/sound-manager';
 import type { ReceiptLineMode } from '../domain/receipt';
 
-export function Payment({ total, cash, method, complete, busy, printed, receiptMode, setReceiptMode, setCash, setMethod, keypress, finish, back, print, next }: {
-  total: number; cash: string; method: 'cash' | 'other'; complete: boolean; busy: boolean; printed: boolean;
+export function Payment({ total, cash, method, complete, busy, printed, printSkipped, receiptMode, setReceiptMode, setCash, setMethod, keypress, finish, back, print, next }: {
+  total: number; cash: string; method: 'cash' | 'other'; complete: boolean; busy: boolean; printed: boolean; printSkipped: boolean;
   setCash: (value: string) => void; setMethod: (method: 'cash' | 'other') => void; keypress: (key: string) => void;
   receiptMode: ReceiptLineMode; setReceiptMode: (mode: ReceiptLineMode) => void;
-  finish: () => void; back: () => void; print: () => void; next: () => void;
+  finish: (withPrinting: boolean) => void; back: () => void; print: () => void; next: () => void;
 }) {
   let received: number | null = null;
   try { if (cash && !cash.endsWith('.')) received = parseMoney(cash); } catch { /* Invalid cash cannot show change. */ }
@@ -24,7 +24,7 @@ export function Payment({ total, cash, method, complete, busy, printed, receiptM
     </div>
     <div className="payment-summary">
       {method === 'cash' ? complete || (payment && !payment.shortfall) ? <div className="change"><span>CHANGE</span><strong data-testid="change">{money(payment?.change ?? 0)}</strong>{complete && <small>Cash received {money(received ?? 0)}</small>}</div> : <div className="due"><span>STILL DUE</span><strong data-testid="due">{money(payment?.shortfall ?? total)}</strong><small>{received === null && cash ? 'Enter a valid cash amount.' : 'Enter cash received or choose Exact.'}</small></div> : <div className="change"><span>PAYMENT</span><strong className="other-label">Other</strong></div>}
-      {!complete ? <><Button className="primary" tone="positive" disabled={busy} onClick={event => { preventTapThrough(event, true); finish(); }}>Complete & Print</Button><Button onClick={event => { preventTapThrough(event, true); back(); }}>Back to sale</Button></> : <><Button disabled={busy} onClick={print}>{busy ? 'Printing…' : printed ? 'Print Again' : 'Retry Print'}</Button>{!printed && <Button disabled={busy} onClick={event => { preventTapThrough(event, true); next(); }}>Continue Without Printing</Button>}<div className="new-sale-area"><p>Check the change before starting the next customer.</p><Button className="primary" tone="positive" disabled={busy} onClick={event => { preventTapThrough(event, true); next(); }}>New Sale</Button></div></>}
+      {!complete ? <><Button className="primary" tone="positive" disabled={busy} onClick={event => { preventTapThrough(event, true); finish(true); }}>Complete & Print</Button><Button className="complete-no-print" tone="positive" disabled={busy} onClick={event => { preventTapThrough(event, true); finish(false); }}>Complete Without Printing</Button><Button onClick={event => { preventTapThrough(event, true); back(); }}>Back to sale</Button></> : <><Button disabled={busy} onClick={print}>{busy ? 'Printing…' : printed ? 'Print Again' : printSkipped ? 'Print Receipt' : 'Retry Print'}</Button>{!printed && !printSkipped && <Button disabled={busy} onClick={event => { preventTapThrough(event, true); next(); }}>Continue Without Printing</Button>}<div className="new-sale-area"><p>Check the change before starting the next customer.</p><Button className="primary" tone="positive" disabled={busy} onClick={event => { preventTapThrough(event, true); next(); }}>New Sale</Button></div></>}
     </div>
   </section>;
 }
