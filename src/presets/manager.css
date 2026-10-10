@@ -77,3 +77,22 @@
   .preset-manager .pm-footer .pm-actions { width: 100%; }
   .preset-manager .pm-footer .pm-actions > button { flex: 1; }
 }
+/* Android's keyboard reduces the WebView height; keep room for the form. */
+@media (max-height: 480px) {
+  .overlay .preset-manager { max-height: calc(100dvh - 24px); padding: 12px; }
+  .preset-manager h2 { font-size: 1.1em; }
+  .pm-topbar { margin: 4px 0; gap: 8px; }
+  .pm-topbar > p { margin: 0; font-size: .8em; }
+  .pm-topbar > button { min-height: 44px; padding: 8px 12px; font-size: .85em; }
+  .pm-scroll { flex: 1; }
+  .pm-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .pm-sidebar { display: none; }
+  .pm-breadcrumbs > button { min-height: 44px; padding: 6px 10px; }
+  .preset-manager h3 { margin: 10px 0 6px; font-size: 1em; }
+  .preset-manager .pm-path { margin: 4px 0; font-size: .8em; }
+  .pm-editor label { margin-top: 10px; }
+  .pm-form-actions { margin-top: 8px; padding: 6px 0; }
+  .pm-form-actions > button { min-height: 48px; padding: 8px 12px; }
+  .preset-manager .pm-footer { margin-top: 6px; padding-top: 6px; gap: 8px; font-size: .8em; }
+  .preset-manager .pm-footer button { min-height: 44px; padding: 8px 12px; }
+}

@@ -71,6 +71,27 @@ async function sharedPresets(page: Page, initial = baselineDocument()) {
 }
 
 const manager = (page: Page) => page.getByRole('dialog', { name: 'Manage presets', exact: true });
+
+test('tablet editor remains usable while the on-screen keyboard reduces available height', async ({page}) => {
+  await sharedPresets(page);
+  await page.setViewportSize({width:1280,height:396});
+  await page.goto('/');
+  await page.addStyleTag({content:'body{font-size:20.8px}'});
+  await page.getByRole('button',{name:/Settings/}).click();
+  await page.getByRole('button',{name:'Manage presets',exact:true}).click();
+  await manager(page).getByRole('button',{name:'Add preset',exact:true}).click();
+  await manager(page).getByLabel('Group name',{exact:true}).fill('Keyboard test');
+  const scroll=await manager(page).locator('.pm-scroll').boundingBox();
+  expect(scroll!.height).toBeGreaterThanOrEqual(120);
+  const save=manager(page).getByRole('button',{name:'Save to draft',exact:true});
+  await save.scrollIntoViewIfNeeded();
+  expect(await save.evaluate(element=>{
+    const r=element.getBoundingClientRect();
+    return element.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+  })).toBe(true);
+  await save.click();
+  await expect(manager(page).getByRole('button',{name:'Open Keyboard test',exact:true})).toBeVisible();
+});
 const button = (scope: Page | Locator, name: string) => scope.getByRole('button', { name, exact: true });
 
 async function openManager(page: Page) {
