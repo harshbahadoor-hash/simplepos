@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:native": "node scripts/verify-native-lifecycle.mjs",
+    "test:presets-server": "node --test server/presets/*.test.mjs",
     "check": "npm run typecheck && npm run lint && npm run test && npm run test:e2e",
     "android:sync": "cap sync android",
     "android:open": "cap open android"

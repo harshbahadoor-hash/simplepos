@@ -1,0 +1,10 @@
+# Import inside the existing HTTPS site. Preserve /preset-config/ and the public Host/Origin.
+handle /preset-config/* {
+    header Cache-Control "no-store"
+    reverse_proxy 127.0.0.1:4318 {
+        transport http {
+            dial_timeout 2s
+            response_header_timeout 15s
+        }
+    }
+}

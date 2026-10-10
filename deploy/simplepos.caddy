@@ -1,11 +1,14 @@
 new.a7k2mq9xb4rt8vl1nc6pz3wy5df0hj7sr2km9qx4un8ep1tv6gw3ba5cd0.com {
-    root * /srv/simplepos/current
     encode gzip
     header X-Robots-Tag "noindex, nofollow"
     header Strict-Transport-Security "max-age=157680000"
     header X-Content-Type-Options "nosniff"
     header Cache-Control "no-cache"
-    @assets path /assets/*
-    header @assets Cache-Control "public, max-age=31536000, immutable"
-    file_server
+    import /etc/caddy/preset-config.caddy
+    handle {
+        root * /srv/simplepos/current
+        @assets path /assets/*
+        header @assets Cache-Control "public, max-age=31536000, immutable"
+        file_server
+    }
 }

@@ -60,6 +60,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Shared reference prices have their own revisions and last-valid cache.
+  // Never serve a preset response from an immutable application asset cache.
+  if (url.pathname.startsWith("/preset-config/")) return;
   if (request.mode === "navigate") {
     event.respondWith(caches.match("/", { cacheName: CACHE }).then((cached) => cached || fetch(request)));
     return;

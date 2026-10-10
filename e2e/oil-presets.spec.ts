@@ -60,6 +60,8 @@ test('oil navigation, Escape and Undo preserve decimal quantity and calculator f
   await button(page, 'Mustard oil').click(); await button(page, 'RKG').click();
   await button(page, 'Back to brands').click();
   await expect(page.getByRole('heading', { name: 'Mustard oil · Choose a brand' })).toBeVisible();
+  // A deliberate second Back press is a new gesture, outside the double-tap shield.
+  await page.waitForTimeout(550);
   await button(page, 'Back to oil types').click();
   await button(page, 'Chameli oil').click();
   await button(page, 'Back to oil types').click();

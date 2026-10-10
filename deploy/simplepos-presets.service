@@ -1,0 +1,38 @@
+[Unit]
+Description=SimplePOS shared preset configuration
+After=network.target
+
+[Service]
+Type=simple
+User=simplepos-presets
+Group=simplepos-presets
+WorkingDirectory=/opt/simplepos-presets
+Environment=NODE_ENV=production
+Environment=PRESET_CONFIG_DIR=/var/lib/simplepos-presets
+Environment=PRESET_PORT=4318
+EnvironmentFile=/etc/simplepos-presets.env
+ExecStart=/usr/bin/node /opt/simplepos-presets/server/presets/main.mjs
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+StateDirectory=simplepos-presets
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+TasksMax=64
+MemoryMax=384M
+LimitNOFILE=256
+
+[Install]
+WantedBy=multi-user.target

@@ -5,12 +5,15 @@ import { readDraft, saveDraft } from '../domain/draft';
 import { receiptBytes, testReceiptBytes, type ReceiptLineMode } from '../domain/receipt';
 import { printer } from '../printer/adapter';
 import { sound } from '../sound/sound-manager';
-import { PosButton as Button } from '../ui/PosButton';
+import { PosButton as Button, preventTapThrough } from '../ui/PosButton';
 import { Calculator } from '../ui/Calculator';
 import { Payment } from '../ui/Payment';
 import { Dialog } from '../ui/Dialog';
 import { PresetPicker } from '../ui/PresetPicker';
-import type { Preset, PresetMenu } from '../domain/presets';
+import { PresetPanel } from '../ui/PresetPanel';
+import { PresetManager } from '../ui/PresetManager';
+import type { Preset } from '../domain/presets';
+import { usePresets } from '../presets/usePresets';
 import { applyUpdate, canUpdate, updateReady } from './updates';
 
 type SaleLine = Line & { id: string };
@@ -31,8 +34,10 @@ export default function Counter() {
   const [undo, setUndo] = useState<{ lines: SaleLine[]; label: string } | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
-  const [dialog, setDialog] = useState<'clear' | 'printer' | 'new-sale' | 'presets' | null>(null);
-  const [presetMenu, setPresetMenu] = useState<PresetMenu>('ghee');
+  const [dialog, setDialog] = useState<'clear' | 'printer' | 'new-sale' | 'presets' | 'manager' | null>(null);
+  const [presetMenu, setPresetMenu] = useState<string | null>('ghee');
+  const [inlineBrowsing, setInlineBrowsing] = useState(false);
+  const [inlineGeneration, setInlineGeneration] = useState(0);
   const closeDialog = useCallback(() => setDialog(null), []);
   const [sounds, setSounds] = useState(sound.isEnabled());
   const [connected, setConnected] = useState(false);
@@ -52,7 +57,9 @@ export default function Counter() {
   const presetCommitted = useRef(false);
   const amount = total(lines);
   const [hasUpdate, setHasUpdate] = useState(updateReady);
-  const safeUpdate = canUpdate({ stage, count: lines.length, entry: entry.value, multiplied: entry.multiplied, editing: editing !== null, busy, dialog: dialog !== null });
+  const safeUpdate = !inlineBrowsing && canUpdate({ stage, count: lines.length, entry: entry.value, multiplied: entry.multiplied, editing: editing !== null, busy, dialog: dialog !== null });
+  const canManage = canUpdate({ stage, count:lines.length,entry:entry.value,multiplied:entry.multiplied,editing:editing!==null,busy,dialog:false });
+  const presets = usePresets(safeUpdate,lines.length>0 && stage!=='complete');
   const updateBoundary = useRef(false);
   useLayoutEffect(() => { updateBoundary.current = safeUpdate; }, [safeUpdate]);
   useEffect(() => {
@@ -93,7 +100,7 @@ export default function Counter() {
     if (phase.current !== 'sale' || consumedEntry.current) return;
     try { commitLine(entryLine(entry)); } catch (error) { fail(error); }
   }
-  function openPresets(menu: PresetMenu) {
+  function openPresets(menu: string | null) {
     if (phase.current !== 'sale' || editing !== null) return;
     if (entry.value) { fail(new Error('Add or clear the current price before choosing a preset.')); focus.current?.focus({ preventScroll: true }); return; }
     presetCommitted.current = false; setPresetMenu(menu); setMessage(''); setDialog('presets');
@@ -104,6 +111,13 @@ export default function Counter() {
       commitLine({ quantity: entry.multiplied ? entry.quantity : 1, price: preset.price });
       presetCommitted.current = true; closeDialog();
       setMessage(`Added: ${brand}${preset.size ? ` ${preset.size}` : ''} · ${money(preset.price)}`);
+    } catch (error) { fail(error); }
+  }
+  function chooseInlinePreset(preset: Preset, path: string) {
+    if (phase.current !== 'sale' || editing !== null || entry.value || dialog) return;
+    try {
+      commitLine({ quantity: entry.multiplied ? entry.quantity : 1, price: preset.price });
+      setMessage(`Added: ${path}${preset.size ? ` ${preset.size}` : ''} · ${money(preset.price)}`);
     } catch (error) { fail(error); }
   }
   function edit(line: SaleLine) {
@@ -141,6 +155,7 @@ export default function Counter() {
     if (!lines.length || phase.current !== 'sale') return;
     if (entry.value || entry.multiplied || editing !== null) { fail(new Error('Add or clear the current price before payment. Finish or cancel the edit first.')); focus.current?.focus({ preventScroll: true }); return; }
     phase.current = 'payment'; setStage('payment'); setCash(''); setMethod('cash'); setMessage('');
+    setInlineBrowsing(false);
   }
   function cashKey(value: string) {
     try { setCash(enter({ quantity: 1, multiplied: false, value: cash }, value).value); setMessage(''); } catch (error) { fail(error); }
@@ -170,6 +185,7 @@ export default function Counter() {
     if (printing.current) return;
     phase.current = 'sale'; setStage('sale'); setLines([]); resetEntry(); setUndo(null); setCash(''); setMethod('cash');
     setMessage(''); setPrinted(false); setPrintSkipped(false); receipt.current = null; setDialog(null);
+    setInlineBrowsing(false); setInlineGeneration(value=>value+1);
   }
   async function print(test = false) {
     if (printing.current) return;
@@ -216,23 +232,26 @@ export default function Counter() {
 
   return <main>
     <header><div><span className="brand-mark calculator-mark" aria-hidden="true"><img src="/simplepos-icon.svg" alt="" /></span><div><strong>BAHADOOR</strong><small>SIMPLE CALCULATOR POS</small></div></div>{hasUpdate && safeUpdate && <Button onClick={() => applyUpdate(() => updateBoundary.current)}>Apply update</Button>}<Button onClick={() => void openSettings()}>Printer ● {connected ? 'Connected' : 'Disconnected'} · Settings</Button></header>
-    {stage === 'sale' ? <><div className="workspace">
-      <Calculator key={editing ?? 'new'} entry={entry} editing={editingIndex} focus={focus} setEntry={updateEntry} keypress={key} add={add} presets={openPresets} cancel={() => { resetEntry(); setMessage('Edit canceled.'); focus.current?.focus({ preventScroll: true }); }} />
+    {stage === 'sale' ? <><div className="workspace has-presets-panel">
+      <Calculator key={editing ?? 'new'} entry={entry} editing={editingIndex} focus={focus} setEntry={updateEntry} keypress={key} add={add} presets={openPresets} presetRoots={presets.document.roots.filter(root=>root.visible)} cancel={() => { resetEntry(); setMessage('Edit canceled.'); focus.current?.focus({ preventScroll: true }); }} />
       <section className="basket" aria-label="Current sale"><div className="section-label">CURRENT SALE<span>{lines.length} items</span></div>
         <div className="items" ref={basket}>{!lines.length ? <div className="empty"><span>＋</span><h2>Ready for your next customer</h2><p>Enter a price, then add an item.</p><small>Try 10 Enter · 2 × 20 Enter</small></div> : lines.map((line,index) => <article key={line.id} className={highlight === line.id ? 'recent-line' : ''}>
           <div><strong>Item {index + 1}</strong><small>{line.quantity} × {money(line.price)}</small></div><strong>{money(lineTotal(line))}</strong>
           <Button aria-label={`Edit Item ${index + 1}`} onClick={() => edit(line)}>Edit</Button>
-          <Button tone="delete" aria-label={`Delete Item ${index + 1}`} onClick={() => remove(line.id)}>✕</Button>
+          <Button tone="delete" aria-label={`Delete Item ${index + 1}`} onClick={event => { preventTapThrough(event, true); remove(line.id); }}>✕</Button>
         </article>)}</div>
         <div className="basket-tools">{undo && <Button onClick={undoLast}>Undo {undo.label}</Button>}<Button disabled={!lines.length} onClick={() => setDialog('clear')}>Clear sale</Button></div>
         <div className="total"><span>TOTAL{amount > subtotal(lines) && <small>Rounded up +{money(amount - subtotal(lines))}</small>}</span><strong data-testid="total">{money(amount)}</strong></div><Button className="primary pay" tone="positive" disabled={!lines.length} onClick={pay}>Pay — {money(amount)}</Button>
       </section>
+      <PresetPanel key={`${presets.document.revision}-${inlineGeneration}`} document={presets.document} quantity={entry.multiplied ? entry.quantity : 1} blocked={editing !== null || !!entry.value || !!dialog} browse={setInlineBrowsing} choose={chooseInlinePreset} />
     </div><footer>Quantity defaults to 1 <span>Enter to add · × for quantity · Esc to clear</span></footer></> : <Payment total={amount} cash={cash} method={method} complete={stage === 'complete'} busy={busy} printed={printed} printSkipped={printSkipped} receiptMode={receiptMode} setReceiptMode={changeReceiptMode} setCash={setCash} setMethod={changeMethod} keypress={cashKey} finish={complete} back={() => { phase.current = 'sale'; setStage('sale'); setCash(''); setMessage(''); }} print={() => void print()} next={() => { if (printed || printSkipped) newSale(); else setDialog('new-sale'); }} />}
     <div className={`message notice ${message ? 'has-message' : ''}`} role="status" aria-label="Counter message" aria-live="polite">{message}</div>
-    {dialog === 'presets' && <PresetPicker key={presetMenu} menu={presetMenu} quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
-    {dialog === 'clear' && <Dialog title="Clear current sale?" close={closeDialog}><p>All current items will be removed.</p><Button onClick={closeDialog}>Cancel</Button><Button tone="delete" onClick={() => { mutate([], 'cleared sale'); resetEntry(); closeDialog(); setMessage('Sale cleared. Undo is available.'); }}>Clear</Button></Dialog>}
+    {dialog === 'presets' && <PresetPicker key={presetMenu} menu={presetMenu} document={presets.document} quantity={entry.multiplied ? entry.quantity : 1} close={closeDialog} choose={choosePreset} />}
+    {dialog === 'manager' && <PresetManager document={presets.latest} publish={presets.publish} checkPublication={presets.checkPublication} close={closeDialog} />}
+    {dialog === 'clear' && <Dialog title="Clear current sale?" close={closeDialog}><p>All current items will be removed.</p><Button onClick={closeDialog}>Cancel</Button><Button tone="delete" onClick={() => { mutate([], 'cleared sale'); resetEntry(); setInlineBrowsing(false); setInlineGeneration(value=>value+1); closeDialog(); setMessage('Sale cleared. Undo is available.'); }}>Clear</Button></Dialog>}
     {dialog === 'new-sale' && <Dialog title="Start a new sale?" close={closeDialog}><p>This receipt has not been confirmed sent. Starting a new sale discards it and hides the change.</p><Button onClick={closeDialog}>Keep receipt</Button><Button tone="positive" onClick={newSale}>Start new sale</Button></Dialog>}
     {dialog === 'printer' && <Dialog title="Printer settings" close={closeDialog}><Button onClick={closeDialog}>Done</Button><p>Selected: {printerName || 'None'} · {connected ? 'Connected' : 'Disconnected'}</p>
+      <Button disabled={!canManage} onClick={()=>{setInlineBrowsing(false);setInlineGeneration(value=>value+1);setDialog('manager');}}>Manage presets</Button><p>{presets.pending?'New preset prices will apply after this sale.':presets.status}{!canManage?' · Finish the current sale before editing presets.':''}</p>
       {printerName && <Button disabled={busy} onClick={() => void connect(address || undefined, printerName, true)}>Reconnect selected printer</Button>}
       {devices.map(device => <Button key={device.address} disabled={busy} onClick={() => void connect(device.address, device.name)}>{device.name || device.address}</Button>)}
       {!Capacitor.isNativePlatform() && <Button disabled={busy} onClick={() => void connect()}>Change Printer (BLE)</Button>}

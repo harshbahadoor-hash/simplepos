@@ -1,0 +1,820 @@
+{
+  "schemaVersion": 1,
+  "revision": 0,
+  "updatedAt": "2026-10-10T00:00:00.000Z",
+  "roots": [
+    {
+      "key": "ghee",
+      "kind": "group",
+      "label": "Ghee",
+      "visible": true,
+      "children": [
+        {
+          "key": "ghee-gopal-ghee",
+          "kind": "group",
+          "label": "Gopal ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-gopal-ghee-0",
+              "kind": "item",
+              "label": "150 ml",
+              "visible": true,
+              "priceCents": 13000
+            },
+            {
+              "key": "ghee-gopal-ghee-1",
+              "kind": "item",
+              "label": "400 ml",
+              "visible": true,
+              "priceCents": 26000
+            },
+            {
+              "key": "ghee-gopal-ghee-2",
+              "kind": "item",
+              "label": "800 ml",
+              "visible": true,
+              "priceCents": 47500
+            }
+          ]
+        },
+        {
+          "key": "ghee-cow-ghee",
+          "kind": "group",
+          "label": "Cow ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-cow-ghee-0",
+              "kind": "item",
+              "label": "150 g",
+              "visible": true,
+              "priceCents": 11500
+            },
+            {
+              "key": "ghee-cow-ghee-1",
+              "kind": "item",
+              "label": "400 g",
+              "visible": true,
+              "priceCents": 27500
+            },
+            {
+              "key": "ghee-cow-ghee-2",
+              "kind": "item",
+              "label": "800 g",
+              "visible": true,
+              "priceCents": 50000
+            },
+            {
+              "key": "ghee-cow-ghee-3",
+              "kind": "item",
+              "label": "1.6 kg",
+              "visible": true,
+              "priceCents": 90000
+            }
+          ]
+        },
+        {
+          "key": "ghee-rkg-ghee",
+          "kind": "group",
+          "label": "RKG ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-rkg-ghee-0",
+              "kind": "item",
+              "label": "200 ml",
+              "visible": true,
+              "priceCents": 14500
+            },
+            {
+              "key": "ghee-rkg-ghee-1",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 29500
+            },
+            {
+              "key": "ghee-rkg-ghee-2",
+              "kind": "item",
+              "label": "1 L",
+              "visible": true,
+              "priceCents": 52500
+            },
+            {
+              "key": "ghee-rkg-ghee-3",
+              "kind": "item",
+              "label": "5 L",
+              "visible": true,
+              "priceCents": 265000
+            },
+            {
+              "key": "ghee-rkg-ghee-4",
+              "kind": "item",
+              "label": "400 g",
+              "visible": true,
+              "priceCents": 26000
+            },
+            {
+              "key": "ghee-rkg-ghee-5",
+              "kind": "item",
+              "label": "800 g",
+              "visible": true,
+              "priceCents": 47500
+            },
+            {
+              "key": "ghee-rkg-ghee-6",
+              "kind": "item",
+              "label": "1600 g",
+              "visible": true,
+              "priceCents": 91500
+            }
+          ]
+        },
+        {
+          "key": "ghee-agni-ghee",
+          "kind": "group",
+          "label": "Agni ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-agni-ghee-0",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 15000
+            },
+            {
+              "key": "ghee-agni-ghee-1",
+              "kind": "item",
+              "label": "1 L",
+              "visible": true,
+              "priceCents": 25000
+            }
+          ]
+        },
+        {
+          "key": "ghee-patanjali-ghee",
+          "kind": "group",
+          "label": "Patanjali ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-patanjali-ghee-0",
+              "kind": "item",
+              "label": "452 g",
+              "visible": true,
+              "priceCents": 27500
+            },
+            {
+              "key": "ghee-patanjali-ghee-1",
+              "kind": "item",
+              "label": "905 g",
+              "visible": true,
+              "priceCents": 48500
+            }
+          ]
+        },
+        {
+          "key": "ghee-vita-ghee",
+          "kind": "group",
+          "label": "Vita ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-vita-ghee-0",
+              "kind": "item",
+              "label": "250 g",
+              "visible": true,
+              "priceCents": 6500
+            },
+            {
+              "key": "ghee-vita-ghee-1",
+              "kind": "item",
+              "label": "500 g",
+              "visible": true,
+              "priceCents": 13000
+            },
+            {
+              "key": "ghee-vita-ghee-2",
+              "kind": "item",
+              "label": "1 kg",
+              "visible": true,
+              "priceCents": 23000
+            },
+            {
+              "key": "ghee-vita-ghee-3",
+              "kind": "item",
+              "label": "2.5 kg",
+              "visible": true,
+              "priceCents": 49500
+            }
+          ]
+        },
+        {
+          "key": "ghee-qbb-ghee",
+          "kind": "group",
+          "label": "QBB ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-qbb-ghee-0",
+              "kind": "item",
+              "label": "150 g",
+              "visible": true,
+              "priceCents": 13000
+            },
+            {
+              "key": "ghee-qbb-ghee-1",
+              "kind": "item",
+              "label": "400 g",
+              "visible": true,
+              "priceCents": 33500
+            },
+            {
+              "key": "ghee-qbb-ghee-2",
+              "kind": "item",
+              "label": "800 g",
+              "visible": true,
+              "priceCents": 65000
+            },
+            {
+              "key": "ghee-qbb-ghee-3",
+              "kind": "item",
+              "label": "1.6 kg",
+              "visible": true,
+              "priceCents": 120000
+            }
+          ]
+        },
+        {
+          "key": "ghee-gavardhan-ghee",
+          "kind": "group",
+          "label": "Gavardhan ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-gavardhan-ghee-0",
+              "kind": "item",
+              "label": "200 ml",
+              "visible": true,
+              "priceCents": 15000
+            },
+            {
+              "key": "ghee-gavardhan-ghee-1",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 30000
+            },
+            {
+              "key": "ghee-gavardhan-ghee-2",
+              "kind": "item",
+              "label": "1 L",
+              "visible": true,
+              "priceCents": 55000
+            }
+          ]
+        },
+        {
+          "key": "ghee-stanwood-ghee",
+          "kind": "group",
+          "label": "Stanwood ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-stanwood-ghee-0",
+              "kind": "item",
+              "label": "200 ml",
+              "visible": true,
+              "priceCents": 9000
+            },
+            {
+              "key": "ghee-stanwood-ghee-1",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 16000
+            },
+            {
+              "key": "ghee-stanwood-ghee-2",
+              "kind": "item",
+              "label": "1 L",
+              "visible": true,
+              "priceCents": 28500
+            }
+          ]
+        },
+        {
+          "key": "ghee-trishul-ghee",
+          "kind": "group",
+          "label": "Trishul ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-trishul-ghee-0",
+              "kind": "item",
+              "label": "100 ml",
+              "visible": true,
+              "priceCents": 5000
+            },
+            {
+              "key": "ghee-trishul-ghee-1",
+              "kind": "item",
+              "label": "200 ml",
+              "visible": true,
+              "priceCents": 8000
+            },
+            {
+              "key": "ghee-trishul-ghee-2",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 13500
+            },
+            {
+              "key": "ghee-trishul-ghee-3",
+              "kind": "item",
+              "label": "1 L",
+              "visible": true,
+              "priceCents": 23500
+            }
+          ]
+        },
+        {
+          "key": "ghee-ananda-ghee",
+          "kind": "group",
+          "label": "Ananda ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-ananda-ghee-0",
+              "kind": "item",
+              "label": "200 ml",
+              "visible": true,
+              "priceCents": 13500
+            },
+            {
+              "key": "ghee-ananda-ghee-1",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 25000
+            },
+            {
+              "key": "ghee-ananda-ghee-2",
+              "kind": "item",
+              "label": "5 L",
+              "visible": true,
+              "priceCents": 235000
+            }
+          ]
+        },
+        {
+          "key": "ghee-mother-dairy-ghee",
+          "kind": "group",
+          "label": "Mother Dairy ghee",
+          "visible": true,
+          "children": [
+            {
+              "key": "ghee-mother-dairy-ghee-0",
+              "kind": "item",
+              "label": "1 L",
+              "visible": true,
+              "priceCents": 47500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "oil",
+      "kind": "group",
+      "label": "Oil",
+      "visible": true,
+      "children": [
+        {
+          "key": "oil-coconut-oil",
+          "kind": "group",
+          "label": "Coconut oil",
+          "visible": true,
+          "children": [
+            {
+              "key": "oil-coconut-oil-badaye",
+              "kind": "group",
+              "label": "Badaye",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-coconut-oil-badaye-0",
+                  "kind": "item",
+                  "label": "100 ml",
+                  "visible": true,
+                  "priceCents": 4000
+                }
+              ]
+            },
+            {
+              "key": "oil-coconut-oil-tristar",
+              "kind": "group",
+              "label": "Tristar",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-coconut-oil-tristar-0",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 15000
+                },
+                {
+                  "key": "oil-coconut-oil-tristar-1",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 26000
+                }
+              ]
+            },
+            {
+              "key": "oil-coconut-oil-rkg",
+              "kind": "group",
+              "label": "RKG",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-coconut-oil-rkg-0",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 16000
+                },
+                {
+                  "key": "oil-coconut-oil-rkg-1",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 29000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "oil-mustard-oil",
+          "kind": "group",
+          "label": "Mustard oil",
+          "visible": true,
+          "children": [
+            {
+              "key": "oil-mustard-oil-badye",
+              "kind": "group",
+              "label": "Badye",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-badye-0",
+                  "kind": "item",
+                  "label": "100 ml",
+                  "visible": true,
+                  "priceCents": 3500
+                },
+                {
+                  "key": "oil-mustard-oil-badye-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 8000
+                }
+              ]
+            },
+            {
+              "key": "oil-mustard-oil-vishal",
+              "kind": "group",
+              "label": "Vishal",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-vishal-0",
+                  "kind": "item",
+                  "label": "200 ml",
+                  "visible": true,
+                  "priceCents": 5500
+                },
+                {
+                  "key": "oil-mustard-oil-vishal-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 10000
+                },
+                {
+                  "key": "oil-mustard-oil-vishal-2",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 20000
+                }
+              ]
+            },
+            {
+              "key": "oil-mustard-oil-patanjali",
+              "kind": "group",
+              "label": "Patanjali",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-patanjali-0",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 23000
+                }
+              ]
+            },
+            {
+              "key": "oil-mustard-oil-rkg",
+              "kind": "group",
+              "label": "RKG",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-rkg-0",
+                  "kind": "item",
+                  "label": "200 ml",
+                  "visible": true,
+                  "priceCents": 6500
+                },
+                {
+                  "key": "oil-mustard-oil-rkg-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 13000
+                },
+                {
+                  "key": "oil-mustard-oil-rkg-2",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 20000
+                }
+              ]
+            },
+            {
+              "key": "oil-mustard-oil-dabur",
+              "kind": "group",
+              "label": "Dabur",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-dabur-0",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 20000
+                }
+              ]
+            },
+            {
+              "key": "oil-mustard-oil-mughal",
+              "kind": "group",
+              "label": "Mughal",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-mughal-0",
+                  "kind": "item",
+                  "label": "250 ml",
+                  "visible": true,
+                  "priceCents": 6500
+                },
+                {
+                  "key": "oil-mustard-oil-mughal-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 11000
+                },
+                {
+                  "key": "oil-mustard-oil-mughal-2",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 20000
+                }
+              ]
+            },
+            {
+              "key": "oil-mustard-oil-nihar",
+              "kind": "group",
+              "label": "Nihar",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-mustard-oil-nihar-0",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 17500
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "oil-sesame-oil",
+          "kind": "group",
+          "label": "Sesame oil",
+          "visible": true,
+          "children": [
+            {
+              "key": "oil-sesame-oil-badye",
+              "kind": "group",
+              "label": "Badye",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-sesame-oil-badye-0",
+                  "kind": "item",
+                  "label": "100 ml",
+                  "visible": true,
+                  "priceCents": 3500
+                },
+                {
+                  "key": "oil-sesame-oil-badye-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 8000
+                }
+              ]
+            },
+            {
+              "key": "oil-sesame-oil-vishal",
+              "kind": "group",
+              "label": "Vishal",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-sesame-oil-vishal-0",
+                  "kind": "item",
+                  "label": "200 ml",
+                  "visible": true,
+                  "priceCents": 5500
+                },
+                {
+                  "key": "oil-sesame-oil-vishal-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 10000
+                },
+                {
+                  "key": "oil-sesame-oil-vishal-2",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 20000
+                }
+              ]
+            },
+            {
+              "key": "oil-sesame-oil-rkg",
+              "kind": "group",
+              "label": "RKG",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-sesame-oil-rkg-0",
+                  "kind": "item",
+                  "label": "200 ml",
+                  "visible": true,
+                  "priceCents": 7500
+                },
+                {
+                  "key": "oil-sesame-oil-rkg-1",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 14500
+                }
+              ]
+            },
+            {
+              "key": "oil-sesame-oil-patanjali",
+              "kind": "group",
+              "label": "Patanjali",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-sesame-oil-patanjali-0",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 26000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "oil-chameli-oil",
+          "kind": "group",
+          "label": "Chameli oil",
+          "visible": true,
+          "children": [
+            {
+              "key": "oil-chameli-oil-0",
+              "kind": "item",
+              "label": "100 ml",
+              "visible": true,
+              "priceCents": 7500
+            },
+            {
+              "key": "oil-chameli-oil-1",
+              "kind": "item",
+              "label": "200 ml",
+              "visible": true,
+              "priceCents": 14000
+            },
+            {
+              "key": "oil-chameli-oil-2",
+              "kind": "item",
+              "label": "500 ml",
+              "visible": true,
+              "priceCents": 27500
+            }
+          ]
+        },
+        {
+          "key": "oil-pooja-oil",
+          "kind": "group",
+          "label": "Pooja oil",
+          "visible": true,
+          "children": [
+            {
+              "key": "oil-pooja-oil-samarpan",
+              "kind": "group",
+              "label": "Samarpan",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-pooja-oil-samarpan-0",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 9000
+                },
+                {
+                  "key": "oil-pooja-oil-samarpan-1",
+                  "kind": "item",
+                  "label": "1 L",
+                  "visible": true,
+                  "priceCents": 15000
+                }
+              ]
+            },
+            {
+              "key": "oil-pooja-oil-om-shanti",
+              "kind": "group",
+              "label": "Om Shanti",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-pooja-oil-om-shanti-0",
+                  "kind": "item",
+                  "label": "500 ml",
+                  "visible": true,
+                  "priceCents": 12500
+                }
+              ]
+            },
+            {
+              "key": "oil-pooja-oil-pavithram",
+              "kind": "group",
+              "label": "Pavithram",
+              "visible": true,
+              "children": [
+                {
+                  "key": "oil-pooja-oil-pavithram-0",
+                  "kind": "item",
+                  "label": "475 ml",
+                  "visible": true,
+                  "priceCents": 17500
+                },
+                {
+                  "key": "oil-pooja-oil-pavithram-1",
+                  "kind": "item",
+                  "label": "950 ml",
+                  "visible": true,
+                  "priceCents": 27500
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
